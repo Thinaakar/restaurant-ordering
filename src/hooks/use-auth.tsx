@@ -10,6 +10,7 @@ interface AuthContextType {
   resetPassword: (email: string, newPassword: string) => boolean;
   logout: () => void;
   isAuthenticated: boolean;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, login, register, resetPassword, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, login, register, resetPassword, logout, isAuthenticated, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

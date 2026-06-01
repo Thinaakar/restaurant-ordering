@@ -173,7 +173,7 @@ Displays order confirmation with customizable type (success, pending, error).
   orderNumber="ORD-001"
   tableNumber={5}
   itemCount={3}
-  totalAmount="₹850"
+  totalAmount="$850"
   onClose={() => {}}
 />
 ```

@@ -102,6 +102,48 @@ export interface AdminUser {
   avatar?: string;
 }
 
+/* ── User Management ──────────────────────────────────── */
+export type UserRole = 'admin' | 'kitchen_chef' | 'waiter' | 'cashier';
+export type UserStatus = 'active' | 'inactive';
+
+export interface ManagedUser {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  role: UserRole;
+  status: UserStatus;
+  createdAt: string;
+  updatedAt: string;
+  avatar?: string;
+}
+
+export type PermissionAction = 'view' | 'create' | 'edit' | 'delete';
+export type PermissionModule =
+  | 'dashboard'
+  | 'user_management'
+  | 'table_management'
+  | 'menu_management'
+  | 'orders'
+  | 'kitchen'
+  | 'cashier'
+  | 'reports'
+  | 'settings';
+
+export interface Permission {
+  module: PermissionModule;
+  actions: PermissionAction[];
+}
+
+export interface Role {
+  id: string;
+  name: string;
+  label: string;
+  description: string;
+  permissions: Permission[];
+  color: string;
+}
+
 /* ── Navigation ───────────────────────────────────────── */
 export interface NavItem {
   label: string;

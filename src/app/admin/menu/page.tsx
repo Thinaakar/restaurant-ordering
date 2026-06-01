@@ -129,7 +129,7 @@ export default function AdminMenuPage() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      
+
       {/* Title Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/20 pb-5">
         <div>
@@ -147,7 +147,7 @@ export default function AdminMenuPage() {
 
       {/* Filter panel */}
       <div className="flex flex-wrap items-center justify-between gap-4 border border-border/40 rounded-xl bg-card p-4">
-        
+
         {/* Search */}
         <div className="relative w-full sm:w-64">
           <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
@@ -306,7 +306,7 @@ export default function AdminMenuPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
-                  <label className="font-bold text-muted-foreground">Price (₹)</label>
+                  <label className="font-bold text-muted-foreground">Price ($)</label>
                   <input
                     type="number"
                     required

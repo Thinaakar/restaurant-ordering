@@ -17,6 +17,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
+  Users,
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -46,6 +47,7 @@ export function AdminSidebar() {
     {
       name: 'Management',
       items: [
+        { label: 'User Management', href: '/admin/users', icon: Users },
         { label: 'Table Manager', href: '/admin/tables', icon: Grid3X3 },
         { label: 'Menu Items', href: '/admin/menu', icon: UtensilsCrossed },
       ],
