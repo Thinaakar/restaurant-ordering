@@ -65,7 +65,7 @@ export default function AdminMenuPage() {
     setFormName(item.name);
     setFormDesc(item.description);
     setFormPrice(item.price.toString());
-    setFormIsVeg(item.isVeg);
+    setFormIsVeg(item.isVeg !== false);
     setFormSpice(item.spiceLevel);
     setFormPrep(item.preparationTime.toString());
     setIsOpen(true);
@@ -283,9 +283,16 @@ export default function AdminMenuPage() {
               </div>
 
               <div className="grid grid-cols-2 gap-4 border-t border-border/20 pt-4">
-                <div className="flex items-center justify-between border border-border/40 rounded-lg p-2.5 bg-surface-2/20 select-none">
-                  <span className="font-bold text-muted-foreground">Is Vegetarian</span>
-                  <Switch checked={formIsVeg} onCheckedChange={setFormIsVeg} />
+                <div className="space-y-1.5">
+                  <label className="font-bold text-muted-foreground">Dish Type</label>
+                  <select
+                    value={formIsVeg ? 'veg' : 'non-veg'}
+                    onChange={(e) => setFormIsVeg(e.target.value === 'veg')}
+                    className="w-full rounded-lg border border-border bg-surface-2/45 px-3 py-2 text-foreground focus:outline-none focus:border-gold cursor-pointer"
+                  >
+                    <option value="veg">Veg</option>
+                    <option value="non-veg">Non-veg</option>
+                  </select>
                 </div>
 
                 <div className="space-y-1.5">
