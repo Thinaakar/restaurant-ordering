@@ -386,7 +386,7 @@ function LoginForm({
 
         <div className="pt-2 space-y-2.5">
           <SubmitButton
-            label="Sign In to Platform"
+            label="Sign In"
             loading={loading}
             disabled={!isValid}
           />
