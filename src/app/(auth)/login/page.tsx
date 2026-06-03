@@ -8,6 +8,7 @@ import {
   RESTAURANT_EMAIL_DOMAIN,
   RESTAURANT_HOSPITALITY,
   RESTAURANT_NAME,
+  RESTAURANT_TAGLINE,
 } from "@/lib/constants";
 import {
   DEMO_SUPER_ADMIN_EMAIL,
@@ -228,7 +229,7 @@ function LeftPanel() {
             {RESTAURANT_NAME}
           </span>
           <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-amber-400/90 mt-1">
-            Luxury Hospitality OS
+            {RESTAURANT_TAGLINE}
           </span>
         </div>
       </div>
@@ -614,7 +615,7 @@ export default function AuthPage() {
               {RESTAURANT_NAME}
             </span>
             <span className="text-[7px] font-bold uppercase tracking-wider text-amber-700 mt-0.5">
-              Luxury Hospitality OS
+              {RESTAURANT_TAGLINE}
             </span>
           </div>
         </div>

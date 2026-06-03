@@ -66,5 +66,5 @@ export {
 } from "@/lib/demo/account";
 export const DEMO_ADMIN_EMAIL = "admin@yumm.com";
 export const DEMO_ADMIN_PASSWORD = "admin123";
-export const RESTAURANT_TAGLINE = "Fine Dining & Culinary Excellence";
+export const RESTAURANT_TAGLINE = "Luxury Dining Experience";
 export const CURRENCY_SYMBOL = "$";
