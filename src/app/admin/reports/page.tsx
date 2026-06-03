@@ -14,6 +14,8 @@ import {
 } from 'recharts';
 import { useOrders } from '@/hooks/use-orders';
 import { useTables } from '@/hooks/use-tables';
+import { useAuth } from '@/hooks/use-auth';
+import { exportReportsCsv } from '@/lib/export/reports-csv';
 import { formatCurrency } from '@/lib/formatters';
 import {
   TrendingUp,
@@ -49,6 +51,7 @@ type Tab = 'daily' | 'weekly' | 'monthly';
 
 export default function AdminReportsPage() {
   const [activeTab, setActiveTab] = useState<Tab>('weekly');
+  const { user } = useAuth();
   const { orders } = useOrders();
   const { tables } = useTables();
 
@@ -66,6 +69,24 @@ export default function AdminReportsPage() {
   const avgOrderValue = totalOrders > 0 ? Math.round(totalRevenue / totalOrders) : 0;
   const hasData = orders.length > 0;
 
+  const handleExportCsv = () => {
+    if (!hasData) {
+      alert('No order data to export. Add orders or use demo sample data first.');
+      return;
+    }
+    exportReportsCsv({
+      isDemo: user?.isDemo === true,
+      activeTab,
+      totalRevenue,
+      totalOrders,
+      avgOrderValue,
+      revenueData,
+      peakHoursData,
+      tableUtilization,
+      orders,
+    });
+  };
+
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/20 pb-5">
@@ -75,8 +96,9 @@ export default function AdminReportsPage() {
         </div>
         <button
           type="button"
-          onClick={() => alert('Export coming soon — data is loaded from Firestore orders.')}
-          className="flex items-center gap-1.5 rounded-full bg-gold px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-black gold-gradient hover:scale-105 transition duration-300 shadow-md cursor-pointer"
+          onClick={handleExportCsv}
+          disabled={!hasData}
+          className="flex items-center gap-1.5 rounded-full bg-gold px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-black gold-gradient hover:scale-105 transition duration-300 shadow-md cursor-pointer disabled:opacity-50 disabled:pointer-events-none disabled:hover:scale-100"
         >
           <ArrowDownToLine className="h-4 w-4" />
           Export CSV
