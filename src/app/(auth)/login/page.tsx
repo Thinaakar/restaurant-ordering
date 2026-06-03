@@ -10,6 +10,11 @@ import {
   RESTAURANT_NAME,
 } from "@/lib/constants";
 import {
+  DEMO_SUPER_ADMIN_EMAIL,
+  DEMO_SUPER_ADMIN_PASSWORD,
+  verifyDemoCredentials,
+} from "@/lib/demo/account";
+import {
   Lock,
   Mail,
   AlertTriangle,
@@ -312,7 +317,10 @@ function LoginForm({
     setErrors({});
     setGlobalError("");
     setLoading(true);
-    login(email, password).then((ok) => {
+    const signIn = verifyDemoCredentials(email, password)
+      ? demoLogin()
+      : login(email, password);
+    signIn.then((ok) => {
       setLoading(false);
       if (ok) onSuccess();
       else setGlobalError("Invalid credentials. Please try again.");
@@ -385,18 +393,15 @@ function LoginForm({
             type="button"
             disabled={loading}
             onClick={() => {
+              setEmail(DEMO_SUPER_ADMIN_EMAIL);
+              setPassword(DEMO_SUPER_ADMIN_PASSWORD);
+              setErrors({});
               setGlobalError("");
-              setLoading(true);
-              demoLogin().then((ok) => {
-                setLoading(false);
-                if (ok) onSuccess();
-                else setGlobalError("Demo login failed. Please try again.");
-              });
             }}
             className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border border-dashed border-amber-300/80 text-amber-800 bg-amber-50/50 hover:bg-amber-50 hover:border-amber-400/90 transition-all duration-200 disabled:opacity-50"
           >
             <Zap className="h-3.5 w-3.5" />
-            Demo Super Admin (full access, read-only data)
+            Demo Super Admin
           </button>
         </div>
       </form>
