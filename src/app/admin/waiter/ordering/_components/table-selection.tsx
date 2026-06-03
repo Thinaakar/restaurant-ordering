@@ -22,8 +22,12 @@ export function TableSelection({ onTableSelect }: TableSelectionProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const floors = useMemo(() => {
-    const set = new Set(tables.map((t) => t.floor));
-    return Array.from(set).sort();
+    const set = new Set(
+      tables
+        .map((t) => t.floor)
+        .filter((f): f is number => typeof f === 'number' && !Number.isNaN(f)),
+    );
+    return Array.from(set).sort((a, b) => a - b);
   }, [tables]);
 
   const filteredTables = useMemo(() => {
@@ -89,7 +93,7 @@ export function TableSelection({ onTableSelect }: TableSelectionProps) {
         </button>
         {floors.map((f) => (
           <button
-            key={f}
+            key={`floor-${f}`}
             onClick={() => setFloorFilter(f)}
             className={cn(
               'px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all',
@@ -107,80 +111,78 @@ export function TableSelection({ onTableSelect }: TableSelectionProps) {
         {/* Table Grid */}
         <div className="xl:col-span-3">
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-            {filteredTables.map((table) => {
-              const isSelected = selectedTableId === table.id;
-              const isAvailable = table.status === 'available';
-
-              return (
-                <button
-                  key={table.id}
-                  onClick={() => isAvailable && setSelectedTableId(table.id)}
-                  disabled={!isAvailable}
-                  className={cn(
-                    'relative p-5 rounded-xl border-2 text-center transition-all duration-300 group overflow-hidden',
-                    isSelected
-                      ? 'border-gold bg-gold/10 ring-2 ring-gold/40 scale-[1.02] shadow-lg shadow-gold/10'
-                      : isAvailable
-                        ? 'border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/60 hover:bg-emerald-500/10 hover:scale-[1.02] cursor-pointer'
-                        : table.status === 'occupied'
-                          ? 'border-red-500/20 bg-red-500/5 opacity-50 cursor-not-allowed'
-                          : 'border-amber-500/20 bg-amber-500/5 opacity-50 cursor-not-allowed'
-                  )}
-                >
-                  {/* Top status bar */}
-                  <div
-                    className={cn(
-                      'absolute top-0 left-0 right-0 h-1 transition-all',
-                      isSelected ? 'bg-gold' :
-                        table.status === 'available' ? 'bg-emerald-500' :
-                          table.status === 'occupied' ? 'bg-red-500' : 'bg-amber-500'
-                    )}
-                  />
-
-                  {/* Selected check */}
-                  {isSelected && (
-                    <div className="absolute top-2.5 right-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-black animate-scale-in">
-                      <Check className="h-3.5 w-3.5" />
-                    </div>
-                  )}
-
-                  <div className="text-3xl mb-2">
-                    {table.status === 'available' ? '🪑' :
-                      table.status === 'occupied' ? '👥' : '🧹'}
-                  </div>
-
-                  <div className="text-xl font-bold text-foreground">Table {table.number}</div>
-                  <div className="text-[10px] text-muted-foreground mt-1">
-                    <Users className="inline h-3 w-3 mr-0.5" />
-                    {table.seats} seats
-                  </div>
-                  <div className="text-[10px] text-muted-foreground">
-                    <MapPin className="inline h-3 w-3 mr-0.5" />
-                    Floor {table.floor}
-                  </div>
-
-                  <div
-                    className={cn(
-                      'mt-2 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block',
-                      table.status === 'available'
-                        ? 'bg-emerald-500/20 text-emerald-400'
-                        : table.status === 'occupied'
-                          ? 'bg-red-500/20 text-red-400'
-                          : 'bg-amber-500/20 text-amber-400'
-                    )}
-                  >
-                    {table.status}
-                  </div>
-                </button>
-              );
-            })}
-
-            {filteredTables.length === 0 && (
+            {filteredTables.length === 0 ? (
               <div className="col-span-full text-center py-16 text-muted-foreground">
                 <Grid3X3 className="h-12 w-12 mx-auto opacity-20 mb-3" />
                 <p className="text-sm font-medium">No tables found</p>
                 <p className="text-xs mt-1">Try adjusting your filters</p>
               </div>
+            ) : (
+              filteredTables.map((table) => {
+                const isSelected = selectedTableId === table.id;
+                const isAvailable = table.status === 'available';
+
+                return (
+                  <button
+                    key={table.id}
+                    onClick={() => isAvailable && setSelectedTableId(table.id)}
+                    disabled={!isAvailable}
+                    className={cn(
+                      'relative p-5 rounded-xl border-2 text-center transition-all duration-300 group overflow-hidden',
+                      isSelected
+                        ? 'border-gold bg-gold/10 ring-2 ring-gold/40 scale-[1.02] shadow-lg shadow-gold/10'
+                        : isAvailable
+                          ? 'border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/60 hover:bg-emerald-500/10 hover:scale-[1.02] cursor-pointer'
+                          : table.status === 'occupied'
+                            ? 'border-red-500/20 bg-red-500/5 opacity-50 cursor-not-allowed'
+                            : 'border-amber-500/20 bg-amber-500/5 opacity-50 cursor-not-allowed'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'absolute top-0 left-0 right-0 h-1 transition-all',
+                        isSelected ? 'bg-gold' :
+                          table.status === 'available' ? 'bg-emerald-500' :
+                            table.status === 'occupied' ? 'bg-red-500' : 'bg-amber-500'
+                      )}
+                    />
+
+                    {isSelected && (
+                      <div className="absolute top-2.5 right-2.5 flex h-6 w-6 items-center justify-center rounded-full bg-gold text-black animate-scale-in">
+                        <Check className="h-3.5 w-3.5" />
+                      </div>
+                    )}
+
+                    <div className="text-3xl mb-2">
+                      {table.status === 'available' ? '🪑' :
+                        table.status === 'occupied' ? '👥' : '🧹'}
+                    </div>
+
+                    <div className="text-xl font-bold text-foreground">Table {table.number}</div>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      <Users className="inline h-3 w-3 mr-0.5" />
+                      {table.seats} seats
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      <MapPin className="inline h-3 w-3 mr-0.5" />
+                      Floor {table.floor}
+                    </div>
+
+                    <div
+                      className={cn(
+                        'mt-2 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block',
+                        table.status === 'available'
+                          ? 'bg-emerald-500/20 text-emerald-400'
+                          : table.status === 'occupied'
+                            ? 'bg-red-500/20 text-red-400'
+                            : 'bg-amber-500/20 text-amber-400'
+                      )}
+                    >
+                      {table.status}
+                    </div>
+                  </button>
+                );
+              })
             )}
           </div>
         </div>
@@ -237,18 +239,16 @@ export function TableSelection({ onTableSelect }: TableSelectionProps) {
 
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-[10px] text-muted-foreground px-1">
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-          Available – Ready for new guests
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-red-500" />
-          Occupied – Currently serving
-        </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500" />
-          Cleaning – Being prepared
-        </div>
+        {[
+          { key: 'available', color: 'bg-emerald-500', label: 'Available – Ready for new guests' },
+          { key: 'occupied', color: 'bg-red-500', label: 'Occupied – Currently serving' },
+          { key: 'cleaning', color: 'bg-amber-500', label: 'Cleaning – Being prepared' },
+        ].map((item) => (
+          <div key={item.key} className="flex items-center gap-1.5">
+            <div className={cn('w-2.5 h-2.5 rounded-full', item.color)} />
+            {item.label}
+          </div>
+        ))}
       </div>
     </div>
   );
