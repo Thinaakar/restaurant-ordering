@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from 'react';
 import { Search, Plus, Eye, Pencil, Trash2, ToggleLeft, ToggleRight, X, ChevronLeft, ChevronRight, Phone, Mail, Calendar, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { RESTAURANT_EMAIL_DOMAIN } from '@/lib/constants';
 import type { ManagedUser, UserRole, UserStatus } from '@/data/types';
 import type { NewUserForm, EditUserForm } from '@/hooks/use-users';
 
@@ -97,7 +98,7 @@ function UserFormModal({ mode, user, onClose, onSave }: {
             <Field label="Full Name" id="um-fullname" name="fullName" value={form.fullName} placeholder="Jane Smith" />
             <Field label="Phone Number" id="um-phone" name="phone" value={form.phone} placeholder="+91 98000 00000" />
           </div>
-          <Field label="Email Address" id="um-email" name="email" type="email" value={form.email} placeholder="jane@aura.com" />
+          <Field label="Email Address" id="um-email" name="email" type="email" value={form.email} placeholder={`jane@${RESTAURANT_EMAIL_DOMAIN}`} />
           {mode === 'add' && (
             <div className="grid grid-cols-2 gap-4">
               <Field label="Password" id="um-pw" name="password" type="password" value={form.password} placeholder="Min 8 chars" />

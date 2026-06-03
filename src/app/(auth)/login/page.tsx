@@ -5,6 +5,13 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import {
+  DEMO_SUPER_ADMIN_EMAIL,
+  DEMO_SUPER_ADMIN_PASSWORD,
+  RESTAURANT_EMAIL_DOMAIN,
+  RESTAURANT_HOSPITALITY,
+  RESTAURANT_NAME,
+} from "@/lib/constants";
+import {
   Lock,
   Mail,
   AlertTriangle,
@@ -219,7 +226,7 @@ function LeftPanel() {
         </div>
         <div className="flex flex-col">
           <span className="text-xl font-serif font-bold text-white tracking-wide leading-none">
-            Aura
+            {RESTAURANT_NAME}
           </span>
           <span className="text-[8px] font-bold uppercase tracking-[0.2em] text-amber-400/90 mt-1">
             Luxury Hospitality OS
@@ -341,7 +348,7 @@ function LoginForm({
           type="email"
           value={email}
           onChange={setEmail}
-          placeholder="you@restaurant.com"
+          placeholder={`you@${RESTAURANT_EMAIL_DOMAIN}`}
           icon={Mail}
           error={errors.email}
         />
@@ -378,8 +385,8 @@ function LoginForm({
           <button
             type="button"
             onClick={() => {
-              setEmail("superadmin@restaurant.com");
-              setPassword("super123");
+              setEmail(DEMO_SUPER_ADMIN_EMAIL);
+              setPassword(DEMO_SUPER_ADMIN_PASSWORD);
               setErrors({});
               setGlobalError("");
             }}
@@ -486,7 +493,7 @@ function ForgotForm({ onSwitch }: { onSwitch: (v: View) => void }) {
           type="email"
           value={email}
           onChange={setEmail}
-          placeholder="you@restaurant.com"
+          placeholder={`you@${RESTAURANT_EMAIL_DOMAIN}`}
           icon={Mail}
           error={errors.email}
         />
@@ -596,7 +603,7 @@ export default function AuthPage() {
             <ChefHat className="h-5 w-5 text-amber-400" />
           </div>
           <div className="flex flex-col text-left">
-            <span className="text-base font-serif font-bold text-stone-900 leading-none">Aura</span>
+            <span className="text-base font-serif font-bold text-stone-900 leading-none">{RESTAURANT_NAME}</span>
             <span className="text-[7px] font-bold uppercase tracking-wider text-amber-700 mt-0.5">Luxury Hospitality OS</span>
           </div>
         </div>
@@ -644,7 +651,7 @@ export default function AuthPage() {
               </a>
             </div>
             <p className="text-center text-[10px] text-stone-400 font-medium">
-              © 2026 Aura Hospitality Systems · Standardizing Culinary Excellence
+              © 2026 {RESTAURANT_HOSPITALITY} · Standardizing Culinary Excellence
             </p>
           </div>
         </div>

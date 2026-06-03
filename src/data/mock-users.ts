@@ -36,7 +36,7 @@ export const MOCK_USERS: ManagedUser[] = [
   {
     id: 'usr_001',
     fullName: 'Arjun Mehta',
-    email: 'arjun.mehta@aura.com',
+    email: 'arjun.mehta@yumm.com',
     phone: '+91 98400 11234',
     role: 'admin',
     status: 'active',
@@ -47,7 +47,7 @@ export const MOCK_USERS: ManagedUser[] = [
   {
     id: 'usr_002',
     fullName: 'Priya Nair',
-    email: 'priya.nair@aura.com',
+    email: 'priya.nair@yumm.com',
     phone: '+91 99400 22345',
     role: 'kitchen_chef',
     status: 'active',
@@ -58,7 +58,7 @@ export const MOCK_USERS: ManagedUser[] = [
   {
     id: 'usr_003',
     fullName: 'Rohan Das',
-    email: 'rohan.das@aura.com',
+    email: 'rohan.das@yumm.com',
     phone: '+91 97400 33456',
     role: 'waiter',
     status: 'active',
@@ -69,7 +69,7 @@ export const MOCK_USERS: ManagedUser[] = [
   {
     id: 'usr_004',
     fullName: 'Sneha Kapoor',
-    email: 'sneha.kapoor@aura.com',
+    email: 'sneha.kapoor@yumm.com',
     phone: '+91 96400 44567',
     role: 'cashier',
     status: 'active',
@@ -80,7 +80,7 @@ export const MOCK_USERS: ManagedUser[] = [
   {
     id: 'usr_005',
     fullName: 'Kiran Reddy',
-    email: 'kiran.reddy@aura.com',
+    email: 'kiran.reddy@yumm.com',
     phone: '+91 95400 55678',
     role: 'waiter',
     status: 'inactive',
@@ -91,7 +91,7 @@ export const MOCK_USERS: ManagedUser[] = [
   {
     id: 'usr_006',
     fullName: 'Ananya Singh',
-    email: 'ananya.singh@aura.com',
+    email: 'ananya.singh@yumm.com',
     phone: '+91 94400 66789',
     role: 'kitchen_chef',
     status: 'active',
@@ -102,7 +102,7 @@ export const MOCK_USERS: ManagedUser[] = [
   {
     id: 'usr_007',
     fullName: 'Vikram Joshi',
-    email: 'vikram.joshi@aura.com',
+    email: 'vikram.joshi@yumm.com',
     phone: '+91 93400 77890',
     role: 'cashier',
     status: 'inactive',
@@ -113,7 +113,7 @@ export const MOCK_USERS: ManagedUser[] = [
   {
     id: 'usr_008',
     fullName: 'Meera Iyer',
-    email: 'meera.iyer@aura.com',
+    email: 'meera.iyer@yumm.com',
     phone: '+91 92400 88901',
     role: 'waiter',
     status: 'active',

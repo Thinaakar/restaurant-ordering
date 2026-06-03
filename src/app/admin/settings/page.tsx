@@ -12,6 +12,11 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+  RESTAURANT_EMAIL_DOMAIN,
+  RESTAURANT_FULL_NAME,
+  RESTAURANT_RESERVATIONS_EMAIL,
+} from '@/lib/constants';
 
 // ─── Section IDs ─────────────────────────────────────────────────────────────
 type SectionId =
@@ -199,9 +204,9 @@ function SaveButton({ onClick }: { onClick?: () => void }) {
 // ─── Sections ─────────────────────────────────────────────────────────────────
 
 function RestaurantDetails() {
-  const [name,     setName]     = useState('Aura Fine Dining');
+  const [name,     setName]     = useState(RESTAURANT_FULL_NAME);
   const [tagline,  setTagline]  = useState('Where Every Moment is a Masterpiece');
-  const [email,    setEmail]    = useState('reservations@aura-dining.com');
+  const [email,    setEmail]    = useState(RESTAURANT_RESERVATIONS_EMAIL);
   const [phone,    setPhone]    = useState('+91 98765 43210');
   const [address,  setAddress]  = useState('12 Prestige Lane, Bandra West, Mumbai 400 050');
   const [isOpen,   setIsOpen]   = useState(true);
@@ -221,7 +226,7 @@ function RestaurantDetails() {
         </div>
         <div>
           <FieldLabel htmlFor="rest-email">Contact Email</FieldLabel>
-          <TextInput id="rest-email" value={email} onChange={setEmail} placeholder="hello@restaurant.com" type="email" />
+          <TextInput id="rest-email" value={email} onChange={setEmail} placeholder={`hello@${RESTAURANT_EMAIL_DOMAIN}`} type="email" />
         </div>
         <div>
           <FieldLabel htmlFor="rest-phone">Contact Phone</FieldLabel>

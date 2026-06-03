@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useCart } from '@/hooks/use-cart';
 import { ShoppingCart, Utensils, CheckCircle, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { RESTAURANT_NAME } from '@/lib/constants';
 import { ThemeToggle } from './theme-toggle';
 
 export function CustomerHeader() {
@@ -36,7 +37,7 @@ export function CustomerHeader() {
         {/* Branding */}
         <Link href="/" className="flex items-center gap-2 group">
           <span className="text-xl md:text-2xl font-display font-semibold uppercase tracking-[0.25em] gold-text">
-            Aura
+            {RESTAURANT_NAME}
           </span>
           <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse-glow" />
         </Link>

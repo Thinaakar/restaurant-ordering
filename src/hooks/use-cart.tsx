@@ -28,9 +28,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   // Load cart from sessionStorage to persist across page reloads during dining
   useEffect(() => {
-    const storedCart = sessionStorage.getItem('aura_cart');
-    const storedTableId = sessionStorage.getItem('aura_cart_table_id');
-    const storedTableNum = sessionStorage.getItem('aura_cart_table_num');
+    const storedCart = sessionStorage.getItem('yumm_cart');
+    const storedTableId = sessionStorage.getItem('yumm_cart_table_id');
+    const storedTableNum = sessionStorage.getItem('yumm_cart_table_num');
 
     if (storedCart) {
       try {
@@ -43,14 +43,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const saveCart = (newItems: CartItem[]) => {
     setItems(newItems);
-    sessionStorage.setItem('aura_cart', JSON.stringify(newItems));
+    sessionStorage.setItem('yumm_cart', JSON.stringify(newItems));
   };
 
   const selectTable = (id: string, num: number) => {
     setTableId(id);
     setTableNumber(num);
-    sessionStorage.setItem('aura_cart_table_id', id);
-    sessionStorage.setItem('aura_cart_table_num', num.toString());
+    sessionStorage.setItem('yumm_cart_table_id', id);
+    sessionStorage.setItem('yumm_cart_table_num', num.toString());
   };
 
   const addItem = (menuItem: MenuItem, quantity: number, specialInstructions?: string) => {

@@ -22,6 +22,15 @@ export const PAYMENT_STATUS_CONFIG = {
   paid: { label: 'Paid', color: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' },
 } as const;
 
-export const RESTAURANT_NAME = 'Aura';
+export const RESTAURANT_NAME = 'YUMM';
+export const RESTAURANT_FULL_NAME = `${RESTAURANT_NAME} Fine Dining`;
+export const RESTAURANT_ADMIN_LABEL = `${RESTAURANT_NAME} Admin`;
+export const RESTAURANT_HOSPITALITY = `${RESTAURANT_NAME} Hospitality Systems`;
+export const RESTAURANT_RESERVATIONS_EMAIL = 'reservations@yumm.com';
+export const RESTAURANT_EMAIL_DOMAIN = 'yumm.com';
+export const DEMO_SUPER_ADMIN_EMAIL = 'superadmin@yumm.com';
+export const DEMO_SUPER_ADMIN_PASSWORD = 'super123';
+export const DEMO_ADMIN_EMAIL = 'admin@yumm.com';
+export const DEMO_ADMIN_PASSWORD = 'admin123';
 export const RESTAURANT_TAGLINE = 'Fine Dining & Culinary Excellence';
 export const CURRENCY_SYMBOL = '$';

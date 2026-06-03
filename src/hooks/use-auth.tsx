@@ -23,15 +23,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     apiJson<AdminUser>('/api/auth/session')
       .then((sessionUser) => {
         setUser(sessionUser);
-        localStorage.setItem('aura_admin_user', JSON.stringify(sessionUser));
+        localStorage.setItem('yumm_admin_user', JSON.stringify(sessionUser));
       })
       .catch(() => {
-        const stored = localStorage.getItem('aura_admin_user');
+        const stored = localStorage.getItem('yumm_admin_user');
         if (stored) {
           try {
             setUser(JSON.parse(stored) as AdminUser);
           } catch {
-            localStorage.removeItem('aura_admin_user');
+            localStorage.removeItem('yumm_admin_user');
           }
         }
       })
@@ -45,7 +45,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ email, password }),
       });
       setUser(sessionUser);
-      localStorage.setItem('aura_admin_user', JSON.stringify(sessionUser));
+      localStorage.setItem('yumm_admin_user', JSON.stringify(sessionUser));
       return true;
     } catch {
       return false;
@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       /* ignore */
     }
     setUser(null);
-    localStorage.removeItem('aura_admin_user');
+    localStorage.removeItem('yumm_admin_user');
   }, []);
 
   const isAuthenticated = !!user;

@@ -8,6 +8,7 @@ import { TablesProvider } from '@/hooks/use-tables';
 import { OrdersProvider } from '@/hooks/use-orders';
 import { CartProvider } from '@/hooks/use-cart';
 import { ToastProvider } from '@/hooks/use-toast';
+import { RESTAURANT_NAME } from '@/lib/constants';
 
 const playfairDisplay = Playfair_Display({
   subsets: ['latin'],
@@ -22,7 +23,7 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Aura – Fine Dining & Operations',
+  title: `${RESTAURANT_NAME} – Fine Dining & Operations`,
   description: 'Premium Restaurant Ordering & Kitchen Management System',
 };
 
@@ -39,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             __html: `
               (function() {
                 try {
-                  var theme = localStorage.getItem('aura_theme');
+                  var theme = localStorage.getItem('yumm_theme');
                   if (theme !== 'light' && theme !== 'dark') theme = 'dark';
                   var root = document.documentElement;
                   root.classList.remove(theme === 'dark' ? 'light' : 'dark');

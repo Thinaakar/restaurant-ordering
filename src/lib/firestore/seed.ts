@@ -7,6 +7,12 @@ import { mockTables } from '@/data/mock-tables';
 import { mockMenuItems } from '@/data/mock-menu';
 import { mockOrders } from '@/data/mock-orders';
 import { MOCK_USERS, MOCK_ROLES } from '@/data/mock-users';
+import {
+  DEMO_ADMIN_EMAIL,
+  DEMO_ADMIN_PASSWORD,
+  DEMO_SUPER_ADMIN_EMAIL,
+  DEMO_SUPER_ADMIN_PASSWORD,
+} from '@/lib/constants';
 
 export async function seedDatabaseIfEmpty(): Promise<{ seeded: boolean; message: string }> {
   const db = getAdminFirestore();
@@ -58,21 +64,26 @@ export async function seedDatabaseIfEmpty(): Promise<{ seeded: boolean; message:
     await seedDocument('roles', id, rest);
   }
 
+  await ensureDemoAdminAccounts();
+
+  return { seeded: true, message: 'Seeded tables, menu, orders, users, roles, and admin accounts' };
+}
+
+/** Upserts demo logins so credentials stay in sync after rebrand or salt changes. */
+export async function ensureDemoAdminAccounts(): Promise<void> {
   await upsertAdminAccount({
-    email: 'superadmin@restaurant.com',
-    password: 'super123',
+    email: DEMO_SUPER_ADMIN_EMAIL,
+    password: DEMO_SUPER_ADMIN_PASSWORD,
     name: 'Super Administrator',
     role: 'super_admin',
     avatar: '👑',
   });
 
   await upsertAdminAccount({
-    email: 'admin@restaurant.com',
-    password: 'admin123',
+    email: DEMO_ADMIN_EMAIL,
+    password: DEMO_ADMIN_PASSWORD,
     name: 'Executive Chef & Admin',
     role: 'admin',
     avatar: '👨‍🍳',
   });
-
-  return { seeded: true, message: 'Seeded tables, menu, orders, users, roles, and admin accounts' };
 }

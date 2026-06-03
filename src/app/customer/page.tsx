@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTables } from '@/hooks/use-tables';
 import { useCart } from '@/hooks/use-cart';
 import { cn } from '@/lib/utils';
-import { TABLE_STATUS_CONFIG } from '@/lib/constants';
+import { RESTAURANT_NAME, TABLE_STATUS_CONFIG } from '@/lib/constants';
 import { Armchair, Compass, ArrowRight, Stars } from 'lucide-react';
 
 export default function TableSelectionPage() {
@@ -42,7 +42,7 @@ export default function TableSelectionPage() {
           Secure Your Table
         </h1>
         <p className="text-sm md:text-base text-muted-foreground">
-          Welcome to Aura. To begin browsing our luxury menu, please select your assigned table number below.
+          Welcome to {RESTAURANT_NAME}. To begin browsing our luxury menu, please select your assigned table number below.
         </p>
       </div>
 

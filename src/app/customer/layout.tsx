@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { CustomerHeader } from '@/components/shell/customer-header';
+import { RESTAURANT_FULL_NAME } from '@/lib/constants';
 
 export default function CustomerLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -13,7 +14,7 @@ export default function CustomerLayout({ children }: { children: React.ReactNode
         </div>
       </main>
       <footer className="border-t border-border/40 py-6 bg-card/25 text-center text-xs text-muted-foreground">
-        <p>© {new Date().getFullYear()} Aura Fine Dining. Crafted with Culinary Excellence.</p>
+        <p>© {new Date().getFullYear()} {RESTAURANT_FULL_NAME}. Crafted with Culinary Excellence.</p>
       </footer>
     </div>
   );

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
+import { RESTAURANT_ADMIN_LABEL, RESTAURANT_NAME } from '@/lib/constants';
 import {
   getUserManagementNavItems,
   isUserManagementPath,
@@ -115,14 +116,14 @@ export function AdminSidebar() {
         {!isCollapsed && (
           <Link href="/admin/dashboard" className="flex items-center gap-2 group">
             <span className="text-xl font-display font-semibold uppercase tracking-[0.25em] gold-text">
-              Aura Admin
+              {RESTAURANT_ADMIN_LABEL}
             </span>
             <Sparkles className="h-4 w-4 text-gold animate-pulse-glow" />
           </Link>
         )}
         {isCollapsed && (
           <Link href="/admin/dashboard" className="mx-auto">
-            <span className="text-xl font-display font-semibold gold-text">A</span>
+            <span className="text-xl font-display font-semibold gold-text">{RESTAURANT_NAME.charAt(0)}</span>
           </Link>
         )}
 

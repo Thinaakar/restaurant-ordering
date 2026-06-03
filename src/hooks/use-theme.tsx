@@ -18,11 +18,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const storedTheme = localStorage.getItem('aura_theme') as Theme | null;
+    const storedTheme = localStorage.getItem('yumm_theme') as Theme | null;
     if (storedTheme === 'light' || storedTheme === 'dark') {
       setThemeState(storedTheme);
     } else {
-      localStorage.setItem('aura_theme', 'dark');
+      localStorage.setItem('yumm_theme', 'dark');
     }
     setMounted(true);
   }, []);
@@ -43,7 +43,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     }
     root.style.colorScheme = theme;
     
-    localStorage.setItem('aura_theme', theme);
+    localStorage.setItem('yumm_theme', theme);
 
     // Remove the transition class after animation completes
     const timer = setTimeout(() => {

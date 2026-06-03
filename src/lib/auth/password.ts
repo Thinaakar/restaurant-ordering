@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 
-const SALT = process.env.PASSWORD_SALT ?? 'aura-restaurant';
+const SALT = process.env.PASSWORD_SALT ?? 'yumm-restaurant';
 
 export function hashPassword(password: string): string {
   return createHash('sha256').update(`${SALT}:${password}`).digest('hex');

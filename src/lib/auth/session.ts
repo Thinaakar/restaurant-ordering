@@ -2,7 +2,7 @@ import { createHmac, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
 import type { AdminAccountRole } from '@/data/types';
 
-export const SESSION_COOKIE = 'aura_session';
+export const SESSION_COOKIE = 'yumm_session';
 const MAX_AGE_SEC = 60 * 60 * 24 * 7;
 
 export interface SessionPayload {
