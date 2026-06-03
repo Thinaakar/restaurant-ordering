@@ -1,4 +1,36 @@
 import type { ManagedUser, Role } from './types';
+import { ALL_PERMISSION_KEYS } from './permission-modules';
+
+const ADMIN_PERMISSIONS = ALL_PERMISSION_KEYS.filter(
+  (k) => !k.startsWith('roles.') && !k.startsWith('permissions.')
+);
+
+const WAITER_PERMISSIONS = [
+  'dashboard.view',
+  'tables.view',
+  'menu.view',
+  'orders.view',
+  'orders.create',
+];
+
+const KITCHEN_PERMISSIONS = [
+  'dashboard.view',
+  'menu.view',
+  'orders.view',
+  'orders.edit',
+  'kitchen.view',
+  'kitchen.update_status',
+];
+
+const CASHIER_PERMISSIONS = [
+  'dashboard.view',
+  'orders.view',
+  'orders.edit',
+  'cashier.view_bills',
+  'cashier.generate_bills',
+  'cashier.mark_payment',
+  'reports.view',
+];
 
 export const MOCK_USERS: ManagedUser[] = [
   {
@@ -93,35 +125,24 @@ export const MOCK_USERS: ManagedUser[] = [
 
 export const MOCK_ROLES: Role[] = [
   {
+    id: 'role_super_admin',
+    name: 'super_admin',
+    label: 'Super Admin',
+    description: 'Full system access including roles and permissions management.',
+    color: 'purple',
+    status: 'active',
+    isSystem: true,
+    permissions: [...ALL_PERMISSION_KEYS],
+  },
+  {
     id: 'role_admin',
     name: 'admin',
     label: 'Admin',
-    description: 'Full system access. Can manage users, roles, menus, and all operations.',
+    description: 'Manages restaurant operations. Cannot modify roles or permissions.',
     color: 'amber',
-    permissions: [
-      { module: 'dashboard', actions: ['view'] },
-      { module: 'user_management', actions: ['view', 'create', 'edit', 'delete'] },
-      { module: 'table_management', actions: ['view', 'create', 'edit', 'delete'] },
-      { module: 'menu_management', actions: ['view', 'create', 'edit', 'delete'] },
-      { module: 'orders', actions: ['view', 'create', 'edit', 'delete'] },
-      { module: 'kitchen', actions: ['view', 'edit'] },
-      { module: 'cashier', actions: ['view', 'create', 'edit'] },
-      { module: 'reports', actions: ['view'] },
-      { module: 'settings', actions: ['view', 'edit'] },
-    ],
-  },
-  {
-    id: 'role_kitchen_chef',
-    name: 'kitchen_chef',
-    label: 'Kitchen Chef',
-    description: 'Manages kitchen operations, updates order status, views menu items.',
-    color: 'orange',
-    permissions: [
-      { module: 'dashboard', actions: ['view'] },
-      { module: 'menu_management', actions: ['view'] },
-      { module: 'orders', actions: ['view', 'edit'] },
-      { module: 'kitchen', actions: ['view', 'edit'] },
-    ],
+    status: 'active',
+    isSystem: true,
+    permissions: [...ADMIN_PERMISSIONS],
   },
   {
     id: 'role_waiter',
@@ -129,12 +150,19 @@ export const MOCK_ROLES: Role[] = [
     label: 'Waiter',
     description: 'Takes orders, manages table assignments, and tracks delivery.',
     color: 'blue',
-    permissions: [
-      { module: 'dashboard', actions: ['view'] },
-      { module: 'table_management', actions: ['view'] },
-      { module: 'menu_management', actions: ['view'] },
-      { module: 'orders', actions: ['view', 'create'] },
-    ],
+    status: 'active',
+    isSystem: true,
+    permissions: [...WAITER_PERMISSIONS],
+  },
+  {
+    id: 'role_kitchen_chef',
+    name: 'kitchen_chef',
+    label: 'Kitchen Chef',
+    description: 'Manages kitchen operations and updates order status.',
+    color: 'orange',
+    status: 'active',
+    isSystem: true,
+    permissions: [...KITCHEN_PERMISSIONS],
   },
   {
     id: 'role_cashier',
@@ -142,30 +170,8 @@ export const MOCK_ROLES: Role[] = [
     label: 'Cashier',
     description: 'Handles billing, payment processing, and order completion.',
     color: 'green',
-    permissions: [
-      { module: 'dashboard', actions: ['view'] },
-      { module: 'orders', actions: ['view', 'edit'] },
-      { module: 'cashier', actions: ['view', 'create', 'edit'] },
-      { module: 'reports', actions: ['view'] },
-    ],
+    status: 'active',
+    isSystem: true,
+    permissions: [...CASHIER_PERMISSIONS],
   },
-];
-
-export const ALL_MODULES: { key: string; label: string }[] = [
-  { key: 'dashboard', label: 'Dashboard' },
-  { key: 'user_management', label: 'User Management' },
-  { key: 'table_management', label: 'Table Management' },
-  { key: 'menu_management', label: 'Menu Management' },
-  { key: 'orders', label: 'Orders' },
-  { key: 'kitchen', label: 'Kitchen' },
-  { key: 'cashier', label: 'Cashier' },
-  { key: 'reports', label: 'Reports' },
-  { key: 'settings', label: 'Settings' },
-];
-
-export const ALL_ACTIONS: { key: string; label: string }[] = [
-  { key: 'view', label: 'View' },
-  { key: 'create', label: 'Create' },
-  { key: 'edit', label: 'Edit' },
-  { key: 'delete', label: 'Delete' },
 ];

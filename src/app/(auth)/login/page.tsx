@@ -17,8 +17,6 @@ import {
   Zap,
   Check,
   ArrowRight,
-  User,
-  Building2,
   RefreshCw,
   Sparkles,
   TrendingUp,
@@ -27,7 +25,7 @@ import {
 } from "lucide-react";
 
 /* ─────────────────────────── Types ─────────────────────────── */
-type View = "login" | "register" | "forgot";
+type View = "login" | "forgot";
 
 /* ─────────────────────────── Helpers ───────────────────────── */
 const isValidEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
@@ -308,12 +306,11 @@ function LoginForm({
     setErrors({});
     setGlobalError("");
     setLoading(true);
-    setTimeout(() => {
-      const ok = login(email, password);
+    login(email, password).then((ok) => {
       setLoading(false);
       if (ok) onSuccess();
       else setGlobalError("Invalid credentials. Please try again.");
-    }, 900);
+    });
   };
 
   return (
@@ -378,231 +375,21 @@ function LoginForm({
             loading={loading}
             disabled={!isValid}
           />
-          {/* Quick Fill — prefills fields only, does NOT submit */}
           <button
             type="button"
             onClick={() => {
-              setEmail("admin@restaurant.com");
-              setPassword("admin123");
+              setEmail("superadmin@restaurant.com");
+              setPassword("super123");
               setErrors({});
               setGlobalError("");
             }}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border border-dashed border-amber-300 text-amber-700 bg-amber-50/60 hover:bg-amber-50 hover:border-amber-400 transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border border-dashed border-amber-300/80 text-amber-800 bg-amber-50/50 hover:bg-amber-50 hover:border-amber-400/90 transition-all duration-200"
           >
             <Zap className="h-3.5 w-3.5" />
-            Quick Fill Demo Credentials
+            Quick Fill Super Admin
           </button>
         </div>
       </form>
-
-      <div className="pt-4 border-t border-stone-100">
-        <p className="text-center text-xs text-stone-500">
-          New to Aura?{" "}
-          <button
-            onClick={() => onSwitch("register")}
-            className="font-bold text-amber-700 hover:text-amber-850 hover:underline transition-colors"
-          >
-            Create your account →
-          </button>
-        </p>
-      </div>
-    </div>
-  );
-}
-
-/* ─────────────────────────── Register Form ─────────────────── */
-function RegisterForm({
-  onSwitch,
-  onSuccess,
-}: {
-  onSwitch: (v: View) => void;
-  onSuccess: () => void;
-}) {
-  const { register } = useAuth();
-  const [name, setName] = useState("");
-  const [restaurantName, setRestaurantName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [showPw, setShowPw] = useState(false);
-  const [showCp, setShowCp] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
-  const [loading, setLoading] = useState(false);
-
-  const validate = () => {
-    const e: Record<string, string> = {};
-    if (!name.trim()) e.name = "Full name is required";
-    if (!restaurantName.trim())
-      e.restaurantName = "Restaurant name is required";
-    if (!email) e.email = "Email is required";
-    else if (!isValidEmail(email)) e.email = "Enter a valid email address";
-    if (!password) e.password = "Password is required";
-    else if (password.length < 8) e.password = "Minimum 8 characters";
-    if (!confirm) e.confirm = "Please confirm your password";
-    else if (password !== confirm) e.confirm = "Passwords do not match";
-    return e;
-  };
-
-  const isValid =
-    name &&
-    restaurantName &&
-    email &&
-    isValidEmail(email) &&
-    password.length >= 8 &&
-    password === confirm;
-
-  const handleSubmit = (ev: React.FormEvent) => {
-    ev.preventDefault();
-    const e = validate();
-    if (Object.keys(e).length) {
-      setErrors(e);
-      return;
-    }
-    setErrors({});
-    setLoading(true);
-    setTimeout(() => {
-      const ok = register(name, restaurantName, email, password);
-      setLoading(false);
-      if (ok) onSuccess();
-    }, 900);
-  };
-
-  const strength =
-    password.length === 0
-      ? 0
-      : password.length < 8
-        ? 1
-        : password.length < 12
-          ? 2
-          : 3;
-  const strengthLabel = ["", "Weak", "Good", "Strong"];
-  const strengthColor = ["", "bg-red-400", "bg-amber-400", "bg-emerald-500"];
-
-  return (
-    <div className="space-y-6">
-      <div className="text-center sm:text-left">
-        <h2 className="text-2xl font-serif text-stone-900 font-normal mb-1 tracking-tight">
-          Create account
-        </h2>
-        <p className="text-xs text-stone-500">
-          Establish your premium restaurant space in seconds
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="grid grid-cols-2 gap-4">
-          <InputField
-            id="reg-name"
-            label="Manager Name"
-            value={name}
-            onChange={setName}
-            placeholder="Jane Smith"
-            icon={User}
-            error={errors.name}
-          />
-          <InputField
-            id="reg-restaurant"
-            label="Restaurant Brand"
-            value={restaurantName}
-            onChange={setRestaurantName}
-            placeholder="Aura Bistro"
-            icon={Building2}
-            error={errors.restaurantName}
-          />
-        </div>
-
-        <InputField
-          id="reg-email"
-          label="Corporate Work Email"
-          type="email"
-          value={email}
-          onChange={setEmail}
-          placeholder="jane@aurabistro.com"
-          icon={Mail}
-          error={errors.email}
-        />
-
-        <div className="space-y-1">
-          <InputField
-            id="reg-password"
-            label="Create Secure Password"
-            type={showPw ? "text" : "password"}
-            value={password}
-            onChange={setPassword}
-            placeholder="Minimum 8 characters"
-            icon={Lock}
-            error={errors.password}
-            showToggle
-            onToggle={() => setShowPw(!showPw)}
-          />
-          {password.length > 0 && (
-            <div className="flex items-center gap-3 px-1 pt-1.5">
-              <div className="flex gap-1.5 flex-1">
-                {[1, 2, 3].map((i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "h-1.5 flex-1 rounded-full transition-all duration-500",
-                      strength >= i ? strengthColor[strength] : "bg-stone-200",
-                    )}
-                  />
-                ))}
-              </div>
-              <div className="flex items-center gap-1">
-                <span
-                  className={cn(
-                    "text-[10px] font-bold",
-                    strength === 1
-                      ? "text-red-650"
-                      : strength === 2
-                        ? "text-amber-650"
-                        : "text-emerald-600",
-                  )}
-                >
-                  {strengthLabel[strength]}
-                </span>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <InputField
-          id="reg-confirm"
-          label="Confirm Password"
-          type={showCp ? "text" : "password"}
-          value={confirm}
-          onChange={setConfirm}
-          placeholder="Re-enter your password"
-          icon={Lock}
-          error={errors.confirm}
-          showToggle
-          onToggle={() => setShowCp(!showCp)}
-        />
-
-        <div className="pt-2">
-          <SubmitButton
-            label="Initialize Workspace"
-            loading={loading}
-            disabled={!isValid}
-          />
-        </div>
-
-        <p className="text-[10px] text-stone-400 text-center leading-relaxed px-2">
-          By initializing, you agree to our corporate Terms of Service and Privacy Policies.
-        </p>
-      </form>
-
-      <div className="pt-4 border-t border-stone-100">
-        <p className="text-center text-xs text-stone-500">
-          Already registered?{" "}
-          <button
-            onClick={() => onSwitch("login")}
-            className="font-bold text-amber-700 hover:text-amber-855 hover:underline transition-colors"
-          >
-            Sign in →
-          </button>
-        </p>
-      </div>
     </div>
   );
 }
@@ -760,7 +547,7 @@ export default function AuthPage() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const viewParam = params.get("view") as View | null;
-    if (viewParam && ["login", "register", "forgot"].includes(viewParam)) {
+    if (viewParam && (viewParam === "login" || viewParam === "forgot")) {
       setView(viewParam);
     }
   }, []);
@@ -826,9 +613,6 @@ export default function AuthPage() {
               <div className="transition-all duration-300">
                 {view === "login" && (
                   <LoginForm onSwitch={switchView} onSuccess={handleSuccess} />
-                )}
-                {view === "register" && (
-                  <RegisterForm onSwitch={switchView} onSuccess={handleSuccess} />
                 )}
                 {view === "forgot" && <ForgotForm onSwitch={switchView} />}
               </div>

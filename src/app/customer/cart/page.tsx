@@ -58,10 +58,11 @@ export default function CartCheckoutPage() {
 
     // Simulating slight processing delay for a luxury premium experience
     setTimeout(() => {
-      const orderId = placeOrder(tableId, tableNumber, orderItems, orderNotes);
-      clearCart();
-      setIsPlacing(false);
-      router.push(`/customer/order-status?orderId=${orderId}`);
+      void placeOrder(tableId, tableNumber, orderItems, orderNotes).then((orderId) => {
+        clearCart();
+        setIsPlacing(false);
+        router.push(`/customer/order-status?orderId=${orderId}`);
+      }).catch(() => setIsPlacing(false));
     }, 1500);
   };
 

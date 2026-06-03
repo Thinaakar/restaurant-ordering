@@ -60,7 +60,7 @@ export default function OrderEntryPage() {
       specialInstructions: ci.specialInstructions,
     }));
 
-    const orderId = placeOrder(tableId, tableNumber, orderItems);
+    void placeOrder(tableId, tableNumber, orderItems).then((orderId) => {
     setLastOrderId(orderId);
     clearCart();
     setIsCartOpen(false);
@@ -71,6 +71,7 @@ export default function OrderEntryPage() {
       description: `Order ${orderId} sent to kitchen for Table ${tableNumber}.`,
       type: 'success',
       duration: 5000,
+    });
     });
   }, [tableId, tableNumber, items, placeOrder, clearCart, addToast]);
 

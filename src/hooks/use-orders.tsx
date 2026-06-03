@@ -1,14 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { Order, OrderItem, OrderStatus, PaymentStatus } from '@/data/types';
-import { mockOrders } from '@/data/mock-orders';
-import { useTables } from './use-tables';
-import { generateOrderId } from '@/lib/formatters';
+import { apiJson } from '@/lib/http/client';
 
 interface OrdersContextType {
   orders: Order[];
-  placeOrder: (tableId: string, tableNumber: number, items: OrderItem[], notes?: string) => string;
+  loading: boolean;
+  refresh: () => Promise<void>;
+  placeOrder: (tableId: string, tableNumber: number, items: OrderItem[], notes?: string) => Promise<string>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => void;
   updatePaymentStatus: (orderId: string, status: PaymentStatus) => void;
   cancelOrder: (orderId: string) => void;
@@ -18,85 +18,63 @@ const OrdersContext = createContext<OrdersContextType | undefined>(undefined);
 
 export function OrdersProvider({ children }: { children: React.ReactNode }) {
   const [orders, setOrders] = useState<Order[]>([]);
-  const { occupyTable, setCleaningStatus } = useTables();
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const storedOrders = localStorage.getItem('aura_orders');
-    if (storedOrders) {
-      try {
-        setOrders(JSON.parse(storedOrders));
-      } catch (e) {
-        setOrders(mockOrders);
-      }
-    } else {
-      setOrders(mockOrders);
+  const refresh = useCallback(async () => {
+    try {
+      const data = await apiJson<Order[]>('/api/orders');
+      setOrders(data);
+    } catch (e) {
+      console.error('Failed to load orders', e);
+    } finally {
+      setLoading(false);
     }
   }, []);
 
-  const saveOrders = (updatedOrders: Order[]) => {
-    setOrders(updatedOrders);
-    localStorage.setItem('aura_orders', JSON.stringify(updatedOrders));
+  useEffect(() => {
+    void refresh();
+  }, [refresh]);
+
+  const placeOrder = async (
+    tableId: string,
+    tableNumber: number,
+    items: OrderItem[],
+    notes?: string,
+  ): Promise<string> => {
+    const created = await apiJson<Order>('/api/orders', {
+      method: 'POST',
+      body: JSON.stringify({ tableId, tableNumber, items, notes }),
+    });
+    setOrders((prev) => [created, ...prev]);
+    return created.id;
   };
 
-  const placeOrder = (tableId: string, tableNumber: number, items: OrderItem[], notes?: string): string => {
-    const newOrderId = generateOrderId();
-    const subtotal = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const tax = Math.round(subtotal * 0.05 * 100) / 100;
-    const total = subtotal + tax;
-
-    const newOrder: Order = {
-      id: newOrderId,
-      tableId,
-      tableNumber,
-      items,
-      status: 'pending',
-      paymentStatus: 'pending',
-      subtotal,
-      tax,
-      total,
-      notes,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    saveOrders([newOrder, ...orders]);
-    occupyTable(tableId, newOrderId);
-    return newOrderId;
+  const patchOrder = async (orderId: string, patch: { status?: OrderStatus; paymentStatus?: PaymentStatus }) => {
+    const updated = await apiJson<Order>(`/api/orders/${orderId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    });
+    setOrders((prev) => prev.map((o) => (o.id === orderId ? updated : o)));
   };
 
   const updateOrderStatus = (orderId: string, status: OrderStatus) => {
-    const updated = orders.map((ord) => {
-      if (ord.id === orderId) {
-        const updatedOrder = { ...ord, status, updatedAt: new Date().toISOString() };
-        // Sync with table state
-        if (status === 'completed') {
-          setCleaningStatus(ord.tableId);
-        }
-        return updatedOrder;
-      }
-      return ord;
-    });
-    saveOrders(updated);
+    void patchOrder(orderId, { status });
   };
 
   const updatePaymentStatus = (orderId: string, paymentStatus: PaymentStatus) => {
-    const updated = orders.map((ord) =>
-      ord.id === orderId ? { ...ord, paymentStatus, updatedAt: new Date().toISOString() } : ord
-    );
-    saveOrders(updated);
+    void patchOrder(orderId, { paymentStatus });
   };
 
   const cancelOrder = (orderId: string) => {
-    const ord = orders.find((o) => o.id === orderId);
-    if (ord) {
-      setCleaningStatus(ord.tableId);
-    }
-    const updated = orders.filter((o) => o.id !== orderId);
-    saveOrders(updated);
+    void apiJson(`/api/orders/${orderId}`, { method: 'DELETE' }).then(() =>
+      setOrders((prev) => prev.filter((o) => o.id !== orderId)),
+    );
   };
 
   return (
-    <OrdersContext.Provider value={{ orders, placeOrder, updateOrderStatus, updatePaymentStatus, cancelOrder }}>
+    <OrdersContext.Provider
+      value={{ orders, loading, refresh, placeOrder, updateOrderStatus, updatePaymentStatus, cancelOrder }}
+    >
       {children}
     </OrdersContext.Provider>
   );

@@ -41,6 +41,9 @@ export function AdminHeader() {
       tables: 'Table Manager',
       menu: 'Menu',
       ordering: 'Ordering',
+      users: 'Users',
+      roles: 'Roles Management',
+      permissions: 'Permissions Management',
     };
 
     return displayPaths.map((path, idx) => {
@@ -56,8 +59,7 @@ export function AdminHeader() {
 
 
   const handleLogout = () => {
-    logout();
-    router.push('/login');
+    void logout().then(() => router.push('/login'));
   };
 
   return (

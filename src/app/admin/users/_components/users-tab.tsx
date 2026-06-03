@@ -7,8 +7,15 @@ import type { ManagedUser, UserRole, UserStatus } from '@/data/types';
 import type { NewUserForm, EditUserForm } from '@/hooks/use-users';
 
 /* ── helpers ── */
-const ROLE_LABELS: Record<UserRole, string> = { admin: 'Admin', kitchen_chef: 'Kitchen Chef', waiter: 'Waiter', cashier: 'Cashier' };
+const ROLE_LABELS: Record<UserRole, string> = {
+  super_admin: 'Super Admin',
+  admin: 'Admin',
+  kitchen_chef: 'Kitchen Chef',
+  waiter: 'Waiter',
+  cashier: 'Cashier',
+};
 const ROLE_COLORS: Record<UserRole, string> = {
+  super_admin: 'bg-purple-100 text-purple-800 border-purple-200',
   admin: 'bg-amber-100 text-amber-800 border-amber-200',
   kitchen_chef: 'bg-orange-100 text-orange-800 border-orange-200',
   waiter: 'bg-blue-100 text-blue-700 border-blue-200',
@@ -102,6 +109,7 @@ function UserFormModal({ mode, user, onClose, onSave }: {
               <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500">Role</label>
               <select value={form.role} onChange={e => set('role', e.target.value)}
                 className="w-full px-3 py-2.5 rounded-lg border border-stone-200 text-sm bg-stone-50 text-stone-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-50 transition-all">
+                <option value="super_admin">Super Admin</option>
                 <option value="admin">Admin</option>
                 <option value="kitchen_chef">Kitchen Chef</option>
                 <option value="waiter">Waiter</option>
@@ -251,6 +259,7 @@ export function UsersTab({ users, onAdd, onUpdate, onDelete, onToggle }: {
           <select value={roleFilter} onChange={e => { setRoleFilter(e.target.value as UserRole | 'all'); setPage(1); }}
             className="px-3 py-2 text-sm rounded-lg border border-stone-200 bg-stone-50 text-stone-700 outline-none focus:border-amber-400 transition-all">
             <option value="all">All Roles</option>
+            <option value="super_admin">Super Admin</option>
             <option value="admin">Admin</option>
             <option value="kitchen_chef">Kitchen Chef</option>
             <option value="waiter">Waiter</option>

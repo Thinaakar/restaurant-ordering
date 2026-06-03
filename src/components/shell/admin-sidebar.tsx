@@ -1,10 +1,14 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
+import {
+  getUserManagementNavItems,
+  isUserManagementPath,
+} from '@/config/user-management-nav';
 import {
   LayoutDashboard,
   Grid3X3,
@@ -16,6 +20,7 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Sparkles,
   Users,
 } from 'lucide-react';
@@ -36,18 +41,28 @@ export function AdminSidebar() {
   const router = useRouter();
   const { logout, user } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [userMgmtOpen, setUserMgmtOpen] = useState(true);
+
+  const userManagementChildren = useMemo(
+    () => getUserManagementNavItems(user?.role),
+    [user?.role]
+  );
+
+  const isSuperAdmin = user?.role === 'super_admin';
+  const isUserMgmtActive = isUserManagementPath(pathname);
+
+  useEffect(() => {
+    if (isUserMgmtActive) setUserMgmtOpen(true);
+  }, [isUserMgmtActive, pathname]);
 
   const navigationGroups: SidebarGroup[] = [
     {
       name: 'Overview',
-      items: [
-        { label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
-      ],
+      items: [{ label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard }],
     },
     {
       name: 'Management',
       items: [
-        { label: 'User Management', href: '/admin/users', icon: Users },
         { label: 'Table Manager', href: '/admin/tables', icon: Grid3X3 },
         { label: 'Menu Items', href: '/admin/menu', icon: UtensilsCrossed },
       ],
@@ -69,19 +84,33 @@ export function AdminSidebar() {
     },
   ];
 
+  const navLinkClass = (isActive: boolean, indented = false) =>
+    cn(
+      'flex items-center gap-3 rounded-lg py-2 text-sm font-medium transition-all duration-300 relative group',
+      indented ? 'pl-9 pr-3' : 'px-3',
+      isActive
+        ? 'bg-gold/10 text-gold shadow-sm border-l-2 border-gold'
+        : 'hover:bg-card hover:text-foreground text-muted-foreground'
+    );
+
   const handleLogout = () => {
-    logout();
-    router.push('/login');
+    void logout().then(() => router.push('/login'));
   };
+
+  const submenuMaxHeight =
+    userManagementChildren.length <= 1
+      ? '2.75rem'
+      : userManagementChildren.length === 2
+        ? '5.5rem'
+        : '8.25rem';
 
   return (
     <aside
       className={cn(
-        "relative flex flex-col border-r border-border/40 bg-sidebar transition-all duration-300 min-h-screen text-sidebar-foreground",
-        isCollapsed ? "w-16" : "w-64"
+        'relative flex flex-col border-r border-border/40 bg-sidebar transition-all duration-300 min-h-screen text-sidebar-foreground',
+        isCollapsed ? 'w-16' : 'w-64'
       )}
     >
-      {/* Brand Header */}
       <div className="flex h-16 items-center justify-between px-4 border-b border-border/40">
         {!isCollapsed && (
           <Link href="/admin/dashboard" className="flex items-center gap-2 group">
@@ -98,18 +127,14 @@ export function AdminSidebar() {
         )}
 
         <button
+          type="button"
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-md transition-colors hover:text-gold hover:border-gold"
         >
-          {isCollapsed ? (
-            <ChevronRight className="h-3 w-3" />
-          ) : (
-            <ChevronLeft className="h-3 w-3" />
-          )}
+          {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
         </button>
       </div>
 
-      {/* Navigation */}
       <nav className="flex-1 space-y-6 px-3 py-4 overflow-y-auto">
         {navigationGroups.map((group) => (
           <div key={group.name} className="space-y-1">
@@ -120,23 +145,22 @@ export function AdminSidebar() {
             )}
             {group.items.map((item) => {
               const Icon = item.icon;
-              const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+              const isActive =
+                pathname === item.href || pathname?.startsWith(item.href + '/');
 
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-all duration-300 relative group",
-                    isActive
-                      ? "bg-gold/10 text-gold shadow-sm border-l-2 border-gold"
-                      : "hover:bg-card hover:text-foreground text-muted-foreground"
-                  )}
+                  className={navLinkClass(isActive)}
                 >
-                  <Icon className={cn("h-5 w-5 shrink-0", isActive ? "text-gold" : "text-muted-foreground group-hover:text-foreground")} />
+                  <Icon
+                    className={cn(
+                      'h-5 w-5 shrink-0',
+                      isActive ? 'text-gold' : 'text-muted-foreground group-hover:text-foreground'
+                    )}
+                  />
                   {!isCollapsed && <span>{item.label}</span>}
-                  
-                  {/* Tooltip for collapsed sidebar */}
                   {isCollapsed && (
                     <div className="absolute left-14 invisible opacity-0 group-hover:visible group-hover:opacity-100 bg-popover border border-border text-popover-foreground text-xs py-1.5 px-3 rounded-md shadow-lg transition-all duration-200 z-50 whitespace-nowrap">
                       {item.label}
@@ -147,9 +171,91 @@ export function AdminSidebar() {
             })}
           </div>
         ))}
+
+        {/* User Management — collapsible parent */}
+        <div className="space-y-1">
+          {!isCollapsed && (
+            <h4 className="px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 select-none">
+              Account
+            </h4>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              if (isCollapsed) {
+                router.push('/admin/users');
+              } else {
+                setUserMgmtOpen((open) => !open);
+              }
+            }}
+            className={cn(navLinkClass(isUserMgmtActive), 'w-full', isCollapsed && 'justify-center')}
+            aria-expanded={userMgmtOpen}
+          >
+            <Users
+              className={cn(
+                'h-5 w-5 shrink-0',
+                isUserMgmtActive ? 'text-gold' : 'text-muted-foreground group-hover:text-foreground'
+              )}
+            />
+            {!isCollapsed && (
+              <>
+                <span className="flex-1 text-left">User Management</span>
+                {userMgmtOpen ? (
+                  <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300" />
+                ) : (
+                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300" />
+                )}
+              </>
+            )}
+            {isCollapsed && (
+              <div className="absolute left-14 invisible opacity-0 group-hover:visible group-hover:opacity-100 bg-popover border border-border text-popover-foreground text-xs py-1.5 px-3 rounded-md shadow-lg transition-all duration-200 z-50 whitespace-nowrap">
+                User Management
+              </div>
+            )}
+          </button>
+
+          {/* Submenu: Users, Roles, Permissions */}
+          <div
+            className={cn(
+              'overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out',
+              !isCollapsed && userMgmtOpen ? 'opacity-100' : 'max-h-0 opacity-0'
+            )}
+            style={
+              !isCollapsed && userMgmtOpen
+                ? { maxHeight: submenuMaxHeight }
+                : undefined
+            }
+          >
+            <div className="space-y-0.5 pt-0.5 border-l-2 border-border/30 ml-5 pl-1">
+              {userManagementChildren.map((child) => {
+                const ChildIcon = child.icon;
+                const childActive =
+                  pathname === child.href || pathname?.startsWith(child.href + '/');
+
+                return (
+                  <Link
+                    key={child.href}
+                    href={child.href}
+                    className={navLinkClass(childActive, true)}
+                  >
+                    <ChildIcon
+                      className={cn(
+                        'h-4 w-4 shrink-0',
+                        childActive
+                          ? 'text-gold'
+                          : 'text-muted-foreground group-hover:text-foreground'
+                      )}
+                    />
+                    <span>{child.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </nav>
 
-      {/* User Footer Profile */}
       <div className="border-t border-border/40 p-4 space-y-3">
         {!isCollapsed && user && (
           <div className="flex items-center gap-3 bg-card/40 border border-border/20 rounded-lg p-2.5">
@@ -159,15 +265,19 @@ export function AdminSidebar() {
             <div className="overflow-hidden">
               <p className="text-xs font-bold text-foreground truncate">{user.name}</p>
               <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+              <p className="text-[10px] font-semibold text-gold">
+                {isSuperAdmin ? 'Super Admin' : 'Admin'}
+              </p>
             </div>
           </div>
         )}
 
         <button
+          type="button"
           onClick={handleLogout}
           className={cn(
-            "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 relative group",
-            isCollapsed && "justify-center"
+            'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 relative group',
+            isCollapsed && 'justify-center'
           )}
         >
           <LogOut className="h-5 w-5 shrink-0" />

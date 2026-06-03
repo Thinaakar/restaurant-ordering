@@ -95,15 +95,18 @@ export interface AnalyticsSummary {
 }
 
 /* ── Auth ─────────────────────────────────────────────── */
+export type AdminAccountRole = 'super_admin' | 'admin';
+
 export interface AdminUser {
   email: string;
   name: string;
-  role: 'admin';
+  role: AdminAccountRole;
   avatar?: string;
 }
 
 /* ── User Management ──────────────────────────────────── */
-export type UserRole = 'admin' | 'kitchen_chef' | 'waiter' | 'cashier';
+export type UserRole = 'super_admin' | 'admin' | 'kitchen_chef' | 'waiter' | 'cashier';
+export type RoleStatus = 'active' | 'inactive';
 export type UserStatus = 'active' | 'inactive';
 
 export interface ManagedUser {
@@ -118,30 +121,15 @@ export interface ManagedUser {
   avatar?: string;
 }
 
-export type PermissionAction = 'view' | 'create' | 'edit' | 'delete';
-export type PermissionModule =
-  | 'dashboard'
-  | 'user_management'
-  | 'table_management'
-  | 'menu_management'
-  | 'orders'
-  | 'kitchen'
-  | 'cashier'
-  | 'reports'
-  | 'settings';
-
-export interface Permission {
-  module: PermissionModule;
-  actions: PermissionAction[];
-}
-
 export interface Role {
   id: string;
   name: string;
   label: string;
   description: string;
-  permissions: Permission[];
+  permissions: string[];
   color: string;
+  status: RoleStatus;
+  isSystem?: boolean;
 }
 
 /* ── Navigation ───────────────────────────────────────── */

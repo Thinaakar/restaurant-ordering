@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { AdminSidebar } from '@/components/shell/admin-sidebar';
 import { AdminHeader } from '@/components/shell/admin-header';
+import { UserManagementProvider } from '@/providers/user-management-provider';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -26,6 +27,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
+    <UserManagementProvider>
     <div className="flex h-screen overflow-hidden bg-background">
       {/* Collapsible Sidebar */}
       <div className="hidden md:flex h-full shrink-0">
@@ -43,5 +45,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
       </div>
     </div>
+    </UserManagementProvider>
   );
 }

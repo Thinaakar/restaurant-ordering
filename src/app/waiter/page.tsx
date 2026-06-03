@@ -44,7 +44,7 @@ export default function WaiterOrderingPage() {
       specialInstructions: specialInstructions || undefined,
     }));
 
-    placeOrder(tableId, tableNumber, orderItems, specialInstructions || undefined);
+    void placeOrder(tableId, tableNumber, orderItems, specialInstructions || undefined).then(() => {
     addToast({
       title: 'Order Placed Successfully',
       description: `Order for Table ${tableNumber} sent to kitchen queue`,
@@ -56,6 +56,7 @@ export default function WaiterOrderingPage() {
     setSpecialInstructions('');
     
     setTimeout(() => setOrderPlaced(false), 3000);
+    });
   };
 
   if (!tableId) {

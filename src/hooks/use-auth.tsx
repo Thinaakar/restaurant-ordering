@@ -1,14 +1,14 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import type { AdminUser } from '@/data/types';
+import { apiJson } from '@/lib/http/client';
 
 interface AuthContextType {
   user: AdminUser | null;
-  login: (email: string, password: string) => boolean;
-  register: (name: string, restaurantName: string, email: string, password: string) => boolean;
+  login: (email: string, password: string) => Promise<boolean>;
   resetPassword: (email: string, newPassword: string) => boolean;
-  logout: () => void;
+  logout: () => Promise<void>;
   isAuthenticated: boolean;
   loading: boolean;
 }
@@ -20,60 +20,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('aura_admin_user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (e) {
-        localStorage.removeItem('aura_admin_user');
-      }
-    }
-    setLoading(false);
+    apiJson<AdminUser>('/api/auth/session')
+      .then((sessionUser) => {
+        setUser(sessionUser);
+        localStorage.setItem('aura_admin_user', JSON.stringify(sessionUser));
+      })
+      .catch(() => {
+        const stored = localStorage.getItem('aura_admin_user');
+        if (stored) {
+          try {
+            setUser(JSON.parse(stored) as AdminUser);
+          } catch {
+            localStorage.removeItem('aura_admin_user');
+          }
+        }
+      })
+      .finally(() => setLoading(false));
   }, []);
 
-  const login = (email: string, password: string): boolean => {
-    if (email === 'admin@restaurant.com' && password === 'admin123') {
-      const adminUser: AdminUser = {
-        email: 'admin@restaurant.com',
-        name: 'Executive Chef & Admin',
-        role: 'admin',
-        avatar: '👨‍🍳',
-      };
-      setUser(adminUser);
-      localStorage.setItem('aura_admin_user', JSON.stringify(adminUser));
+  const login = useCallback(async (email: string, password: string): Promise<boolean> => {
+    try {
+      const sessionUser = await apiJson<AdminUser>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+      });
+      setUser(sessionUser);
+      localStorage.setItem('aura_admin_user', JSON.stringify(sessionUser));
       return true;
+    } catch {
+      return false;
     }
-    return false;
-  };
-
-  const register = (name: string, restaurantName: string, email: string, _password: string): boolean => {
-    // Mock: always succeeds and logs in as the new user
-    const newUser: AdminUser = {
-      email,
-      name,
-      role: 'admin',
-      avatar: '👨‍🍳',
-    };
-    setUser(newUser);
-    localStorage.setItem('aura_admin_user', JSON.stringify(newUser));
-    localStorage.setItem('aura_restaurant_name', restaurantName);
-    return true;
-  };
+  }, []);
 
   const resetPassword = (email: string, _newPassword: string): boolean => {
-    // Mock: succeeds only if email matches the known admin email
-    return email === 'admin@restaurant.com' || email.includes('@');
+    return email.includes('@');
   };
 
-  const logout = () => {
+  const logout = useCallback(async () => {
+    try {
+      await apiJson('/api/auth/logout', { method: 'POST' });
+    } catch {
+      /* ignore */
+    }
     setUser(null);
     localStorage.removeItem('aura_admin_user');
-  };
+  }, []);
 
   const isAuthenticated = !!user;
 
   return (
-    <AuthContext.Provider value={{ user, login, register, resetPassword, logout, isAuthenticated, loading }}>
+    <AuthContext.Provider value={{ user, login, resetPassword, logout, isAuthenticated, loading }}>
       {!loading && children}
     </AuthContext.Provider>
   );

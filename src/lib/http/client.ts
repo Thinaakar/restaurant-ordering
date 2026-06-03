@@ -9,7 +9,8 @@ export async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
       ...init?.headers,
     },
   });
-  const body = (await res.json().catch(() => null)) as { error?: string } | null;
+  const body = (await res.json().catch(() => null)) as { data?: T; error?: string } | null;
   if (!res.ok) throw new Error(body?.error || res.statusText);
+  if (body && 'data' in body) return body.data as T;
   return body as T;
 }
