@@ -10,7 +10,6 @@ import React, {
 import type {
   ManagedUser,
   Role,
-  UserRole,
   UserStatus,
   RoleStatus,
 } from "@/data/types";
@@ -23,7 +22,7 @@ export interface NewUserForm {
   phone: string;
   password: string;
   confirmPassword: string;
-  role: UserRole;
+  role: string;
   status: UserStatus;
 }
 
@@ -31,7 +30,7 @@ export interface EditUserForm {
   fullName: string;
   email: string;
   phone: string;
-  role: UserRole;
+  role: string;
   status: UserStatus;
 }
 
@@ -78,9 +77,11 @@ export function UserManagementProvider({
     try {
       const usersData = await apiJson<ManagedUser[]>("/api/users");
       setUsers(usersData);
-      if (user?.role === "super_admin") {
+      try {
         const rolesData = await apiJson<Role[]>("/api/roles");
-        setRoles(rolesData);
+        setRoles(rolesData.filter((r) => r.status === "active"));
+      } catch {
+        setRoles([]);
       }
     } catch (e) {
       console.error("Failed to load user management data", e);

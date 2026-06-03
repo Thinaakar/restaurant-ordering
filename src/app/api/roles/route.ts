@@ -7,13 +7,13 @@ import {
   handleRouteError,
   isDemoRequest,
   jsonData,
-  requireSuperAdmin,
+  requireAuth,
   requireNonDemoSuperAdmin,
 } from "@/lib/api/route-helpers";
 
 export async function GET(request: Request) {
   try {
-    requireSuperAdmin(request);
+    requireAuth(request);
     if (isDemoRequest(request)) return jsonData(demoRoles);
     await ensureDb();
     return jsonData(await listRoles());

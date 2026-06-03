@@ -57,7 +57,7 @@ export const managedUserCreateSchema = z.object({
   fullName: z.string().min(1),
   email: z.string().email(),
   phone: z.string().min(1),
-  role: z.enum(['super_admin', 'admin', 'kitchen_chef', 'waiter', 'cashier']),
+  role: z.string().min(1),
   status: z.enum(['active', 'inactive']).default('active'),
   avatar: z.string().optional(),
 });

@@ -4,24 +4,30 @@ import React, { useState, useMemo } from 'react';
 import { Search, Plus, Eye, Pencil, Trash2, ToggleLeft, ToggleRight, X, ChevronLeft, ChevronRight, Phone, Mail, Calendar, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RESTAURANT_EMAIL_DOMAIN } from '@/lib/constants';
-import type { ManagedUser, UserRole, UserStatus } from '@/data/types';
+import type { ManagedUser, Role, UserStatus } from '@/data/types';
 import type { NewUserForm, EditUserForm } from '@/hooks/use-users';
 
 /* ── helpers ── */
-const ROLE_LABELS: Record<UserRole, string> = {
-  super_admin: 'Super Admin',
-  admin: 'Admin',
-  kitchen_chef: 'Kitchen Chef',
-  waiter: 'Waiter',
-  cashier: 'Cashier',
-};
-const ROLE_COLORS: Record<UserRole, string> = {
+const ROLE_COLOR_BY_NAME: Record<string, string> = {
   super_admin: 'bg-purple-100 text-purple-800 border-purple-200',
   admin: 'bg-amber-100 text-amber-800 border-amber-200',
   kitchen_chef: 'bg-orange-100 text-orange-800 border-orange-200',
   waiter: 'bg-blue-100 text-blue-700 border-blue-200',
   cashier: 'bg-emerald-100 text-emerald-800 border-emerald-200',
 };
+
+function roleLabel(roleName: string, roles: Role[]): string {
+  return roles.find((r) => r.name === roleName)?.label ?? roleName.replace(/_/g, ' ');
+}
+
+function roleBadgeClass(roleName: string): string {
+  return ROLE_COLOR_BY_NAME[roleName] ?? 'bg-stone-100 text-stone-700 border-stone-200';
+}
+
+function defaultRoleName(roles: Role[]): string {
+  const staff = roles.find((r) => r.name === 'waiter');
+  return staff?.name ?? roles[0]?.name ?? 'waiter';
+}
 const fmt = (d: string) => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 const PAGE_SIZE = 5;
 
@@ -37,19 +43,21 @@ function StatusBadge({ status }: { status: UserStatus }) {
 }
 
 /* ── User Form Modal ── */
-function UserFormModal({ mode, user, onClose, onSave }: {
+function UserFormModal({ mode, user, roles, onClose, onSave }: {
   mode: 'add' | 'edit';
   user?: ManagedUser;
+  roles: Role[];
   onClose: () => void;
   onSave: (data: NewUserForm | EditUserForm) => void;
 }) {
+  const assignableRoles = roles.filter((r) => r.status === 'active');
   const [form, setForm] = useState({
     fullName: user?.fullName ?? '',
     email: user?.email ?? '',
     phone: user?.phone ?? '',
     password: '',
     confirmPassword: '',
-    role: (user?.role ?? 'waiter') as UserRole,
+    role: user?.role ?? defaultRoleName(assignableRoles),
     status: (user?.status ?? 'active') as UserStatus,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -108,13 +116,21 @@ function UserFormModal({ mode, user, onClose, onSave }: {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500">Role</label>
-              <select value={form.role} onChange={e => set('role', e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg border border-stone-200 text-sm bg-stone-50 text-stone-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-50 transition-all">
-                <option value="super_admin">Super Admin</option>
-                <option value="admin">Admin</option>
-                <option value="kitchen_chef">Kitchen Chef</option>
-                <option value="waiter">Waiter</option>
-                <option value="cashier">Cashier</option>
+              <select
+                value={form.role}
+                onChange={(e) => set('role', e.target.value)}
+                disabled={assignableRoles.length === 0}
+                className="w-full px-3 py-2.5 rounded-lg border border-stone-200 text-sm bg-stone-50 text-stone-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-50 transition-all disabled:opacity-50"
+              >
+                {assignableRoles.length === 0 ? (
+                  <option value="">No roles — add roles on Roles page</option>
+                ) : (
+                  assignableRoles.map((r) => (
+                    <option key={r.id} value={r.name}>
+                      {r.label}
+                    </option>
+                  ))
+                )}
               </select>
             </div>
             <div className="space-y-1">
@@ -139,7 +155,7 @@ function UserFormModal({ mode, user, onClose, onSave }: {
 }
 
 /* ── View Modal ── */
-function ViewModal({ user, onClose }: { user: ManagedUser; onClose: () => void }) {
+function ViewModal({ user, roles, onClose }: { user: ManagedUser; roles: Role[]; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm border border-stone-200 overflow-hidden">
@@ -152,8 +168,8 @@ function ViewModal({ user, onClose }: { user: ManagedUser; onClose: () => void }
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 border border-stone-200 text-2xl">{user.avatar || '👤'}</div>
             <div>
               <p className="font-bold text-stone-900 text-base">{user.fullName}</p>
-              <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border mt-1', ROLE_COLORS[user.role])}>
-                {ROLE_LABELS[user.role]}
+              <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border mt-1', roleBadgeClass(user.role))}>
+                {roleLabel(user.role, roles)}
               </span>
             </div>
           </div>
@@ -212,15 +228,17 @@ function DeleteModal({ user, onClose, onConfirm }: { user: ManagedUser; onClose:
 }
 
 /* ── Main Users Tab ── */
-export function UsersTab({ users, onAdd, onUpdate, onDelete, onToggle }: {
+export function UsersTab({ users, roles, onAdd, onUpdate, onDelete, onToggle }: {
   users: ManagedUser[];
+  roles: Role[];
   onAdd: (f: NewUserForm) => void;
   onUpdate: (id: string, f: EditUserForm) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
 }) {
   const [search, setSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState<UserRole | 'all'>('all');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
+  const activeRoles = useMemo(() => roles.filter((r) => r.status === 'active'), [roles]);
   const [statusFilter, setStatusFilter] = useState<UserStatus | 'all'>('all');
   const [sortField, setSortField] = useState<'fullName' | 'createdAt'>('createdAt');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
@@ -257,14 +275,12 @@ export function UsersTab({ users, onAdd, onUpdate, onDelete, onToggle }: {
               placeholder="Search users…"
               className="pl-9 pr-3 py-2 text-sm rounded-lg border border-stone-200 bg-stone-50 text-stone-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-50 w-56 transition-all" />
           </div>
-          <select value={roleFilter} onChange={e => { setRoleFilter(e.target.value as UserRole | 'all'); setPage(1); }}
+          <select value={roleFilter} onChange={e => { setRoleFilter(e.target.value); setPage(1); }}
             className="px-3 py-2 text-sm rounded-lg border border-stone-200 bg-stone-50 text-stone-700 outline-none focus:border-amber-400 transition-all">
             <option value="all">All Roles</option>
-            <option value="super_admin">Super Admin</option>
-            <option value="admin">Admin</option>
-            <option value="kitchen_chef">Kitchen Chef</option>
-            <option value="waiter">Waiter</option>
-            <option value="cashier">Cashier</option>
+            {activeRoles.map((r) => (
+              <option key={r.id} value={r.name}>{r.label}</option>
+            ))}
           </select>
           <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value as UserStatus | 'all'); setPage(1); }}
             className="px-3 py-2 text-sm rounded-lg border border-stone-200 bg-stone-50 text-stone-700 outline-none focus:border-amber-400 transition-all">
@@ -317,7 +333,7 @@ export function UsersTab({ users, onAdd, onUpdate, onDelete, onToggle }: {
                   </td>
                   <td className="px-4 py-3 text-xs text-stone-600 whitespace-nowrap">{u.phone}</td>
                   <td className="px-4 py-3">
-                    <span className={cn('px-2 py-0.5 rounded-full text-[11px] font-semibold border', ROLE_COLORS[u.role])}>{ROLE_LABELS[u.role]}</span>
+                    <span className={cn('px-2 py-0.5 rounded-full text-[11px] font-semibold border', roleBadgeClass(u.role))}>{roleLabel(u.role, roles)}</span>
                   </td>
                   <td className="px-4 py-3"><StatusBadge status={u.status} /></td>
                   <td className="px-4 py-3 text-xs text-stone-500 whitespace-nowrap">{fmt(u.createdAt)}</td>
@@ -361,9 +377,9 @@ export function UsersTab({ users, onAdd, onUpdate, onDelete, onToggle }: {
       </div>
 
       {/* Modals */}
-      {modal === 'add' && <UserFormModal mode="add" onClose={() => setModal(null)} onSave={d => onAdd(d as NewUserForm)} />}
-      {modal === 'edit' && selected && <UserFormModal mode="edit" user={selected} onClose={() => setModal(null)} onSave={d => onUpdate(selected.id, d as EditUserForm)} />}
-      {modal === 'view' && selected && <ViewModal user={selected} onClose={() => setModal(null)} />}
+      {modal === 'add' && <UserFormModal mode="add" roles={roles} onClose={() => setModal(null)} onSave={d => onAdd(d as NewUserForm)} />}
+      {modal === 'edit' && selected && <UserFormModal mode="edit" user={selected} roles={roles} onClose={() => setModal(null)} onSave={d => onUpdate(selected.id, d as EditUserForm)} />}
+      {modal === 'view' && selected && <ViewModal user={selected} roles={roles} onClose={() => setModal(null)} />}
       {modal === 'delete' && selected && <DeleteModal user={selected} onClose={() => setModal(null)} onConfirm={() => { onDelete(selected.id); setModal(null); }} />}
     </div>
   );

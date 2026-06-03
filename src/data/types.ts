@@ -119,7 +119,8 @@ export interface ManagedUser {
   fullName: string;
   email: string;
   phone: string;
-  role: UserRole;
+  /** Matches Role.name from Roles management (system or custom). */
+  role: string;
   status: UserStatus;
   createdAt: string;
   updatedAt: string;

@@ -20,6 +20,7 @@ export default function UserManagementPage() {
       {/* Users table — no tabs, direct render */}
       <UsersTab
         users={users}
+        roles={roles}
         onAdd={addUser}
         onUpdate={updateUser}
         onDelete={deleteUser}
