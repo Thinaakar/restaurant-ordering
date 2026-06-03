@@ -21,6 +21,13 @@ function col(table: string) {
   return appCollection(getAdminFirestore(), table);
 }
 
+function sanitizeOrderItems(items: Order["items"]): Order["items"] {
+  return items.map((item) => {
+    const clean = stripUndefined({ ...item } as Record<string, unknown>);
+    return clean as unknown as Order["items"][number];
+  });
+}
+
 // ── Admin accounts ────────────────────────────────────────────
 
 export async function upsertAdminAccount(input: {
@@ -174,21 +181,23 @@ export async function createOrder(input: {
   const order: Omit<Order, "id"> = {
     tableId: input.tableId,
     tableNumber: input.tableNumber,
-    items: input.items,
+    items: sanitizeOrderItems(input.items),
     status: "pending",
     paymentStatus: "pending",
     subtotal,
     tax,
     total,
-    notes: input.notes,
+    ...(input.notes ? { notes: input.notes } : {}),
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
-  await ref.set({
-    ...order,
-    createdAt: FieldValue.serverTimestamp(),
-    updatedAt: FieldValue.serverTimestamp(),
-  });
+  await ref.set(
+    stripUndefined({
+      ...order,
+      createdAt: FieldValue.serverTimestamp(),
+      updatedAt: FieldValue.serverTimestamp(),
+    }),
+  );
   await updateTable(input.tableId, {
     status: "occupied",
     currentOrderId: ref.id,
@@ -204,7 +213,7 @@ export async function updateOrder(
   const existing = await ref.get();
   if (!existing.exists) return null;
   const prev = existing.data() as Order;
-  let items = input.items ?? prev.items;
+  let items = input.items ? sanitizeOrderItems(input.items) : prev.items;
   let subtotal = prev.subtotal;
   let tax = prev.tax;
   let total = prev.total;

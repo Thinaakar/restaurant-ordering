@@ -61,7 +61,12 @@ export function OrdersProvider({ children }: { children: React.ReactNode }) {
   ): Promise<string> => {
     const created = await apiJson<Order>("/api/orders", {
       method: "POST",
-      body: JSON.stringify({ tableId, tableNumber, items, notes }),
+      body: JSON.stringify({
+        tableId,
+        tableNumber,
+        items,
+        ...(notes ? { notes } : {}),
+      }),
     });
     setOrders((prev) => [created, ...prev]);
     return created.id;
