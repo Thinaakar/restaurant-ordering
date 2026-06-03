@@ -18,7 +18,6 @@ import {
   ShoppingCart,
   ClipboardList,
   ArrowLeft,
-  Sparkles,
 } from 'lucide-react';
 
 type WorkflowStep = 'tables' | 'menu' | 'active-orders';
@@ -103,7 +102,7 @@ export default function OrderEntryPage() {
         <div>
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl gold-gradient shadow-lg">
-              <Sparkles className="h-5 w-5 text-black" />
+              <UtensilsCrossed className="h-5 w-5 text-black" />
             </div>
             <div>
               <h1 className="text-2xl font-display font-bold gold-text tracking-wide">

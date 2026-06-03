@@ -8,7 +8,6 @@ import {
   Users,
   MapPin,
   Check,
-  Sparkles,
   Search,
 } from 'lucide-react';
 
@@ -189,8 +188,7 @@ export function TableSelection({ onTableSelect }: TableSelectionProps) {
         {/* Selection Detail Panel */}
         <div className="xl:col-span-1">
           <div className="rounded-xl border border-border/50 bg-card p-5 sticky top-6 space-y-5">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
-              <Sparkles className="h-4 w-4 text-gold" />
+            <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
               Table Details
             </h3>
 

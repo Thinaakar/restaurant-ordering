@@ -22,7 +22,6 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronDown,
-  Sparkles,
   Users,
 } from 'lucide-react';
 
@@ -118,7 +117,6 @@ export function AdminSidebar() {
             <span className="text-xl font-display font-semibold uppercase tracking-[0.25em] gold-text">
               {RESTAURANT_ADMIN_LABEL}
             </span>
-            <Sparkles className="h-4 w-4 text-gold animate-pulse-glow" />
           </Link>
         )}
         {isCollapsed && (

@@ -23,8 +23,7 @@ export function OrderConfirmationModal({
         <div className="absolute top-0 left-0 right-0 h-1 bg-gold gold-gradient" />
 
         {/* Success Icon Animation block */}
-        <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 relative">
-          <div className="absolute inset-0 rounded-full border border-emerald-500/30 animate-pulse" />
+        <div className="flex h-16 w-16 mx-auto items-center justify-center rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400">
           <Check className="h-7 w-7" />
         </div>
 

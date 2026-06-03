@@ -25,7 +25,6 @@ import {
   Check,
   ArrowRight,
   RefreshCw,
-  Sparkles,
   TrendingUp,
   Clock,
   Users,
@@ -218,11 +217,8 @@ function LeftPanel() {
 
       {/* ── Logo Branding (Z-Index above image) ── */}
       <div className="relative z-20 flex items-center gap-3 text-left">
-        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-md">
           <ChefHat className="h-5.5 w-5.5 text-amber-400" />
-          <div className="absolute -top-1 -right-1">
-            <Sparkles className="h-3 w-3 text-amber-300 animate-pulse" />
-          </div>
         </div>
         <div className="flex flex-col">
           <span className="text-xl font-serif font-bold text-white tracking-wide leading-none">
@@ -236,8 +232,8 @@ function LeftPanel() {
 
       {/* ── Main Hero Content ── */}
       <div className="relative z-20 my-auto py-10 max-w-xl text-left space-y-6">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-white/5 border border-white/10 backdrop-blur-sm">
-          <Sparkles className="h-3 w-3 text-amber-400 animate-pulse" /> Premium Hospitality Release
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-amber-400 bg-white/5 border border-white/10 backdrop-blur-sm">
+          Premium Hospitality Release
         </span>
         <h1 className="text-4xl sm:text-5xl font-serif text-white leading-[1.15] font-normal tracking-tight">
           Elevate Every <br />
@@ -445,13 +441,8 @@ function ForgotForm({ onSwitch }: { onSwitch: (v: View) => void }) {
   if (success) {
     return (
       <div className="text-center py-6 space-y-6">
-        <div className="relative inline-flex">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 border border-emerald-250 shadow-md">
-            <Check className="h-8 w-8 text-emerald-600" />
-          </div>
-          <div className="absolute -top-2 -right-2 flex h-6 w-6 items-center justify-center rounded-full bg-white shadow border border-emerald-200">
-            <Sparkles className="h-3 w-3 text-emerald-500 animate-pulse" />
-          </div>
+        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-50 border border-emerald-250 shadow-md mx-auto">
+          <Check className="h-8 w-8 text-emerald-600" />
         </div>
         <div className="space-y-2">
           <h2 className="text-2xl font-serif text-stone-900 font-normal">

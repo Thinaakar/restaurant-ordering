@@ -39,7 +39,6 @@ export function CustomerHeader() {
           <span className="text-xl md:text-2xl font-display font-semibold uppercase tracking-[0.25em] gold-text">
             {RESTAURANT_NAME}
           </span>
-          <span className="h-1.5 w-1.5 rounded-full bg-gold animate-pulse-glow" />
         </Link>
 
         {/* Steps for desktop */}
@@ -78,7 +77,6 @@ export function CustomerHeader() {
 
           {tableNumber !== null && (
             <div className="flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs md:text-sm text-gold">
-              <span className="h-2 w-2 rounded-full bg-gold animate-pulse-glow" />
               <span>Table {tableNumber}</span>
             </div>
           )}

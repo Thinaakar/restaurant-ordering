@@ -193,8 +193,8 @@ export async function getAnalyticsSummary(): Promise<AnalyticsSummary> {
     todayRevenue,
     todayOrders: todayOrders.length,
     averageOrderValue: orders.length ? totalRevenue / orders.length : 0,
-    revenueGrowth: 12.5,
-    orderGrowth: 8.2,
+    revenueGrowth: 0,
+    orderGrowth: 0,
   };
 }
 

@@ -9,16 +9,16 @@ import { UserManagementProvider } from '@/providers/user-management-provider';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
 
   // Authentication Guard
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!loading && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, loading, router]);
 
-  if (!isAuthenticated) {
+  if (loading || !isAuthenticated) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background text-muted-foreground text-xs uppercase tracking-widest">
         Verifying Session...

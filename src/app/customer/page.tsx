@@ -6,7 +6,7 @@ import { useTables } from '@/hooks/use-tables';
 import { useCart } from '@/hooks/use-cart';
 import { cn } from '@/lib/utils';
 import { RESTAURANT_NAME, TABLE_STATUS_CONFIG } from '@/lib/constants';
-import { Armchair, Compass, ArrowRight, Stars } from 'lucide-react';
+import { Armchair, Compass, ArrowRight } from 'lucide-react';
 
 export default function TableSelectionPage() {
   const router = useRouter();
@@ -34,8 +34,7 @@ export default function TableSelectionPage() {
       
       {/* Visual Header Banner */}
       <div className="text-center space-y-4 max-w-xl mx-auto">
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs text-gold">
-          <Stars className="h-3 w-3 animate-pulse-glow" />
+        <div className="inline-flex items-center rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs text-gold">
           <span>Interactive Dining Experience</span>
         </div>
         <h1 className="text-4xl font-display font-semibold tracking-tight text-foreground sm:text-5xl">

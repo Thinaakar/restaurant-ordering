@@ -13,7 +13,6 @@ import {
   Check,
   ClipboardList,
   UtensilsCrossed,
-  Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -231,7 +230,7 @@ export default function CartCheckoutPage() {
                 </>
               ) : (
                 <>
-                  <Sparkles className="h-4 w-4 text-black animate-pulse-glow" />
+                  <UtensilsCrossed className="h-4 w-4 text-black" />
                   <span>Send to Chef Queue</span>
                 </>
               )}

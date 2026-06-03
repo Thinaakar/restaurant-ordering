@@ -220,9 +220,6 @@
   .animate-shimmer {
     animation: shimmer 2s infinite;
   }
-  .animate-pulse-glow {
-    animation: pulseGlow 2s ease-in-out infinite;
-  }
   .animate-count-up {
     animation: countUp 1s ease-out forwards;
   }
@@ -260,11 +257,6 @@
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
-}
-
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 5px hsl(var(--gold) / 0.2); }
-  50% { box-shadow: 0 0 20px hsl(var(--gold) / 0.4); }
 }
 
 @keyframes countUp {

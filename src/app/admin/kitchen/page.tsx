@@ -91,7 +91,7 @@ export default function AdminKitchenPage() {
         {/* Chime controls & alert banner */}
         <div className="flex items-center gap-3">
           {newOrderAlert && (
-            <div className="flex items-center gap-1.5 rounded-full border border-gold bg-gold/15 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gold animate-pulse-glow">
+            <div className="flex items-center gap-1.5 rounded-full border border-gold bg-gold/15 px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-wider text-gold">
               <Volume2 className="h-3.5 w-3.5 animate-bounce" />
               <span>New Order Placed!</span>
             </div>
