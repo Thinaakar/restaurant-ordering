@@ -394,7 +394,8 @@ async function deleteAllInCollection(tableKey: string): Promise<number> {
 
 /** Removes tables, menu, orders, users, and roles. Keeps admin login accounts. */
 export async function clearOperationalData(): Promise<Record<string, number>> {
-  const { clearDemoHiddenSampleIds } = await import("@/lib/demo/hidden-samples");
+  const { clearDemoHiddenSampleIds } =
+    await import("@/lib/demo/hidden-samples");
   const result: Record<string, number> = {};
   for (const tableKey of OPERATIONAL_TABLES) {
     result[tableKey] = await deleteAllInCollection(tableKey);
