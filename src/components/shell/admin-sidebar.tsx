@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { cn } from '@/lib/utils';
-import { RESTAURANT_ADMIN_LABEL, RESTAURANT_NAME } from '@/lib/constants';
+import { RESTAURANT_ADMIN_LABEL } from '@/lib/constants';
 import {
   getUserManagementNavItems,
   isUserManagementPath,
@@ -19,9 +19,8 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  ChevronLeft,
-  ChevronRight,
   ChevronDown,
+  ChevronRight,
   Users,
 } from 'lucide-react';
 
@@ -40,7 +39,6 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user } = useAuth();
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [userMgmtOpen, setUserMgmtOpen] = useState(true);
 
   const userManagementChildren = useMemo(
@@ -105,43 +103,21 @@ export function AdminSidebar() {
         : '8.25rem';
 
   return (
-    <aside
-      className={cn(
-        'relative flex flex-col border-r border-border/40 bg-sidebar transition-all duration-300 min-h-screen text-sidebar-foreground',
-        isCollapsed ? 'w-16' : 'w-64'
-      )}
-    >
-      <div className="flex h-16 items-center justify-between px-4 border-b border-border/40">
-        {!isCollapsed && (
-          <Link href="/admin/dashboard" className="flex items-center gap-2 group">
-            <span className="text-xl font-display font-semibold uppercase tracking-[0.25em] gold-text">
-              {RESTAURANT_ADMIN_LABEL}
-            </span>
-          </Link>
-        )}
-        {isCollapsed && (
-          <Link href="/admin/dashboard" className="mx-auto">
-            <span className="text-xl font-display font-semibold gold-text">{RESTAURANT_NAME.charAt(0)}</span>
-          </Link>
-        )}
-
-        <button
-          type="button"
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className="absolute -right-3 top-20 flex h-6 w-6 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-md transition-colors hover:text-gold hover:border-gold"
-        >
-          {isCollapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronLeft className="h-3 w-3" />}
-        </button>
+    <aside className="relative flex w-64 flex-col border-r border-border/40 bg-sidebar min-h-screen text-sidebar-foreground">
+      <div className="flex h-16 items-center px-4 border-b border-border/40">
+        <Link href="/admin/dashboard" className="flex items-center gap-2 group">
+          <span className="text-xl font-display font-semibold uppercase tracking-[0.25em] gold-text">
+            {RESTAURANT_ADMIN_LABEL}
+          </span>
+        </Link>
       </div>
 
       <nav className="flex-1 space-y-6 px-3 py-4 overflow-y-auto">
         {navigationGroups.map((group) => (
           <div key={group.name} className="space-y-1">
-            {!isCollapsed && (
-              <h4 className="px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 select-none">
-                {group.name}
-              </h4>
-            )}
+            <h4 className="px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 select-none">
+              {group.name}
+            </h4>
             {group.items.map((item) => {
               const Icon = item.icon;
               const isActive =
@@ -159,12 +135,7 @@ export function AdminSidebar() {
                       isActive ? 'text-gold' : 'text-muted-foreground group-hover:text-foreground'
                     )}
                   />
-                  {!isCollapsed && <span>{item.label}</span>}
-                  {isCollapsed && (
-                    <div className="absolute left-14 invisible opacity-0 group-hover:visible group-hover:opacity-100 bg-popover border border-border text-popover-foreground text-xs py-1.5 px-3 rounded-md shadow-lg transition-all duration-200 z-50 whitespace-nowrap">
-                      {item.label}
-                    </div>
-                  )}
+                  <span>{item.label}</span>
                 </Link>
               );
             })}
@@ -173,22 +144,14 @@ export function AdminSidebar() {
 
         {/* User Management — collapsible parent */}
         <div className="space-y-1">
-          {!isCollapsed && (
-            <h4 className="px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 select-none">
-              Account
-            </h4>
-          )}
+          <h4 className="px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 select-none">
+            Account
+          </h4>
 
           <button
             type="button"
-            onClick={() => {
-              if (isCollapsed) {
-                router.push('/admin/users');
-              } else {
-                setUserMgmtOpen((open) => !open);
-              }
-            }}
-            className={cn(navLinkClass(isUserMgmtActive), 'w-full', isCollapsed && 'justify-center')}
+            onClick={() => setUserMgmtOpen((open) => !open)}
+            className={cn(navLinkClass(isUserMgmtActive), 'w-full')}
             aria-expanded={userMgmtOpen}
           >
             <Users
@@ -197,20 +160,11 @@ export function AdminSidebar() {
                 isUserMgmtActive ? 'text-gold' : 'text-muted-foreground group-hover:text-foreground'
               )}
             />
-            {!isCollapsed && (
-              <>
-                <span className="flex-1 text-left">User Management</span>
-                {userMgmtOpen ? (
-                  <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300" />
-                )}
-              </>
-            )}
-            {isCollapsed && (
-              <div className="absolute left-14 invisible opacity-0 group-hover:visible group-hover:opacity-100 bg-popover border border-border text-popover-foreground text-xs py-1.5 px-3 rounded-md shadow-lg transition-all duration-200 z-50 whitespace-nowrap">
-                User Management
-              </div>
+            <span className="flex-1 text-left">User Management</span>
+            {userMgmtOpen ? (
+              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300" />
+            ) : (
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300" />
             )}
           </button>
 
@@ -218,13 +172,9 @@ export function AdminSidebar() {
           <div
             className={cn(
               'overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out',
-              !isCollapsed && userMgmtOpen ? 'opacity-100' : 'max-h-0 opacity-0'
+              userMgmtOpen ? 'opacity-100' : 'max-h-0 opacity-0'
             )}
-            style={
-              !isCollapsed && userMgmtOpen
-                ? { maxHeight: submenuMaxHeight }
-                : undefined
-            }
+            style={userMgmtOpen ? { maxHeight: submenuMaxHeight } : undefined}
           >
             <div className="space-y-0.5 pt-0.5 border-l-2 border-border/30 ml-5 pl-1">
               {userManagementChildren.map((child) => {
@@ -256,7 +206,7 @@ export function AdminSidebar() {
       </nav>
 
       <div className="border-t border-border/40 p-4 space-y-3">
-        {!isCollapsed && user && (
+        {user && (
           <div className="flex items-center gap-3 bg-card/40 border border-border/20 rounded-lg p-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gold/10 text-lg border border-gold/20">
               {user.avatar || '👨‍🍳'}
@@ -274,18 +224,10 @@ export function AdminSidebar() {
         <button
           type="button"
           onClick={handleLogout}
-          className={cn(
-            'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10 relative group',
-            isCollapsed && 'justify-center'
-          )}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
         >
           <LogOut className="h-5 w-5 shrink-0" />
-          {!isCollapsed && <span>Log out</span>}
-          {isCollapsed && (
-            <div className="absolute left-14 invisible opacity-0 group-hover:visible group-hover:opacity-100 bg-popover border border-border text-destructive text-xs py-1.5 px-3 rounded-md shadow-lg transition-all duration-200 z-50 whitespace-nowrap">
-              Log out
-            </div>
-          )}
+          <span>Log out</span>
         </button>
       </div>
     </aside>

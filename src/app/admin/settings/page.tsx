@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   Building2,
   Clock,
@@ -10,21 +10,21 @@ import {
   ChevronRight,
   Save,
   RefreshCw,
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   RESTAURANT_EMAIL_DOMAIN,
   RESTAURANT_FULL_NAME,
   RESTAURANT_RESERVATIONS_EMAIL,
-} from '@/lib/constants';
+} from "@/lib/constants";
 
 // ─── Section IDs ─────────────────────────────────────────────────────────────
 type SectionId =
-  | 'restaurant-details'
-  | 'business-hours'
-  | 'table-configuration'
-  | 'kitchen-configuration'
-  | 'payment-configuration';
+  | "restaurant-details"
+  | "business-hours"
+  | "table-configuration"
+  | "kitchen-configuration"
+  | "payment-configuration";
 
 interface NavItem {
   id: SectionId;
@@ -33,15 +33,31 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'restaurant-details',    label: 'Restaurant Details',    icon: Building2  },
-  { id: 'business-hours',        label: 'Business Hours',        icon: Clock      },
-  { id: 'table-configuration',   label: 'Table Configuration',   icon: LayoutGrid },
-  { id: 'kitchen-configuration', label: 'Kitchen Configuration', icon: ChefHat   },
-  { id: 'payment-configuration', label: 'Payment Configuration', icon: CreditCard },
+  { id: "restaurant-details", label: "Restaurant Details", icon: Building2 },
+  { id: "business-hours", label: "Business Hours", icon: Clock },
+  { id: "table-configuration", label: "Table Configuration", icon: LayoutGrid },
+  {
+    id: "kitchen-configuration",
+    label: "Kitchen Configuration",
+    icon: ChefHat,
+  },
+  {
+    id: "payment-configuration",
+    label: "Payment Configuration",
+    icon: CreditCard,
+  },
 ];
 
 // ─── Business hours ───────────────────────────────────────────────────────────
-const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAYS = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 interface DayHours {
   open: boolean;
@@ -51,7 +67,7 @@ interface DayHours {
 
 const defaultHours = (): Record<string, DayHours> =>
   Object.fromEntries(
-    DAYS.map((d) => [d, { open: d !== 'Sunday', from: '09:00', to: '22:00' }])
+    DAYS.map((d) => [d, { open: d !== "Sunday", from: "09:00", to: "22:00" }]),
   );
 
 // ─── Shared UI helpers ────────────────────────────────────────────────────────
@@ -76,9 +92,18 @@ function Divider() {
   return <div className="border-t border-border/30 my-8" />;
 }
 
-function FieldLabel({ children, htmlFor }: { children: React.ReactNode; htmlFor?: string }) {
+function FieldLabel({
+  children,
+  htmlFor,
+}: {
+  children: React.ReactNode;
+  htmlFor?: string;
+}) {
   return (
-    <label htmlFor={htmlFor} className="block text-xs font-semibold text-foreground/80 mb-1.5">
+    <label
+      htmlFor={htmlFor}
+      className="block text-xs font-semibold text-foreground/80 mb-1.5"
+    >
       {children}
     </label>
   );
@@ -93,7 +118,7 @@ function TextInput({
   value,
   onChange,
   placeholder,
-  type = 'text',
+  type = "text",
 }: {
   id?: string;
   value: string;
@@ -152,14 +177,14 @@ function Toggle({
       type="button"
       onClick={() => onChange(!value)}
       className={cn(
-        'w-9 h-5 rounded-full relative shrink-0 transition-colors duration-200 cursor-pointer',
-        value ? 'bg-gold' : 'bg-surface-3'
+        "w-9 h-5 rounded-full relative shrink-0 transition-colors duration-200 cursor-pointer",
+        value ? "bg-gold" : "bg-surface-3",
       )}
     >
       <span
         className={cn(
-          'absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200',
-          value ? 'translate-x-4' : 'translate-x-0'
+          "absolute top-0.5 left-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition-transform duration-200",
+          value ? "translate-x-4" : "translate-x-0",
         )}
       />
     </button>
@@ -204,12 +229,14 @@ function SaveButton({ onClick }: { onClick?: () => void }) {
 // ─── Sections ─────────────────────────────────────────────────────────────────
 
 function RestaurantDetails() {
-  const [name,     setName]     = useState(RESTAURANT_FULL_NAME);
-  const [tagline,  setTagline]  = useState('Where Every Moment is a Masterpiece');
-  const [email,    setEmail]    = useState(RESTAURANT_RESERVATIONS_EMAIL);
-  const [phone,    setPhone]    = useState('+91 98765 43210');
-  const [address,  setAddress]  = useState('12 Prestige Lane, Bandra West, Mumbai 400 050');
-  const [isOpen,   setIsOpen]   = useState(true);
+  const [name, setName] = useState(RESTAURANT_FULL_NAME);
+  const [tagline, setTagline] = useState("Where Every Moment is a Masterpiece");
+  const [email, setEmail] = useState(RESTAURANT_RESERVATIONS_EMAIL);
+  const [phone, setPhone] = useState("+91 98765 43210");
+  const [address, setAddress] = useState(
+    "12 Prestige Lane, Bandra West, Mumbai 400 050",
+  );
+  const [isOpen, setIsOpen] = useState(true);
 
   return (
     <section id="restaurant-details">
@@ -218,23 +245,50 @@ function RestaurantDetails() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
         <div>
           <FieldLabel htmlFor="rest-name">Restaurant Name</FieldLabel>
-          <TextInput id="rest-name" value={name} onChange={setName} placeholder="Your restaurant name" />
+          <TextInput
+            id="rest-name"
+            value={name}
+            onChange={setName}
+            placeholder="Your restaurant name"
+          />
         </div>
         <div>
           <FieldLabel htmlFor="rest-tagline">Tagline</FieldLabel>
-          <TextInput id="rest-tagline" value={tagline} onChange={setTagline} placeholder="A short brand slogan" />
+          <TextInput
+            id="rest-tagline"
+            value={tagline}
+            onChange={setTagline}
+            placeholder="A short brand slogan"
+          />
         </div>
         <div>
           <FieldLabel htmlFor="rest-email">Contact Email</FieldLabel>
-          <TextInput id="rest-email" value={email} onChange={setEmail} placeholder={`hello@${RESTAURANT_EMAIL_DOMAIN}`} type="email" />
+          <TextInput
+            id="rest-email"
+            value={email}
+            onChange={setEmail}
+            placeholder={`hello@${RESTAURANT_EMAIL_DOMAIN}`}
+            type="email"
+          />
         </div>
         <div>
           <FieldLabel htmlFor="rest-phone">Contact Phone</FieldLabel>
-          <TextInput id="rest-phone" value={phone} onChange={setPhone} placeholder="+91 00000 00000" type="tel" />
+          <TextInput
+            id="rest-phone"
+            value={phone}
+            onChange={setPhone}
+            placeholder="+91 00000 00000"
+            type="tel"
+          />
         </div>
         <div className="sm:col-span-2">
           <FieldLabel htmlFor="rest-address">Street Address</FieldLabel>
-          <TextInput id="rest-address" value={address} onChange={setAddress} placeholder="Full address" />
+          <TextInput
+            id="rest-address"
+            value={address}
+            onChange={setAddress}
+            placeholder="Full address"
+          />
         </div>
       </div>
 
@@ -242,7 +296,9 @@ function RestaurantDetails() {
 
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-foreground">Operational Status</p>
+          <p className="text-sm font-semibold text-foreground">
+            Operational Status
+          </p>
           <p className="text-[11px] text-muted-foreground mt-0.5">
             Marking closed disables self-order and new reservations.
           </p>
@@ -251,18 +307,18 @@ function RestaurantDetails() {
           type="button"
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            'rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider border transition-all duration-300 cursor-pointer',
+            "rounded-full px-4 py-1.5 text-[11px] font-bold uppercase tracking-wider border transition-all duration-300 cursor-pointer",
             isOpen
-              ? 'border-emerald bg-emerald/10 text-emerald'
-              : 'border-destructive bg-destructive/10 text-destructive'
+              ? "border-emerald bg-emerald/10 text-emerald"
+              : "border-destructive bg-destructive/10 text-destructive",
           )}
         >
-          {isOpen ? '● Open & Trading' : '● Closed'}
+          {isOpen ? "● Open & Trading" : "● Closed"}
         </button>
       </div>
 
       <div className="mt-8">
-        <SaveButton onClick={() => alert('Restaurant details saved.')} />
+        <SaveButton onClick={() => alert("Restaurant details saved.")} />
       </div>
     </section>
   );
@@ -271,7 +327,11 @@ function RestaurantDetails() {
 function BusinessHours() {
   const [hours, setHours] = useState<Record<string, DayHours>>(defaultHours);
 
-  const update = (day: string, field: keyof DayHours, value: string | boolean) =>
+  const update = (
+    day: string,
+    field: keyof DayHours,
+    value: string | boolean,
+  ) =>
     setHours((prev) => ({ ...prev, [day]: { ...prev[day], [field]: value } }));
 
   return (
@@ -282,29 +342,36 @@ function BusinessHours() {
         {DAYS.map((day) => {
           const h = hours[day];
           return (
-            <div key={day} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-              <span className="w-24 text-xs font-semibold text-foreground shrink-0">{day}</span>
+            <div
+              key={day}
+              className="flex items-center gap-4 py-4 first:pt-0 last:pb-0"
+            >
+              <span className="w-24 text-xs font-semibold text-foreground shrink-0">
+                {day}
+              </span>
 
-              <Toggle value={h.open} onChange={(v) => update(day, 'open', v)} />
+              <Toggle value={h.open} onChange={(v) => update(day, "open", v)} />
 
               {h.open ? (
                 <div className="flex items-center gap-2 flex-1">
                   <input
                     type="time"
                     value={h.from}
-                    onChange={(e) => update(day, 'from', e.target.value)}
+                    onChange={(e) => update(day, "from", e.target.value)}
                     className="rounded-md border border-border bg-surface-2/40 px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-gold/70 transition-all cursor-pointer"
                   />
                   <span className="text-xs text-muted-foreground">to</span>
                   <input
                     type="time"
                     value={h.to}
-                    onChange={(e) => update(day, 'to', e.target.value)}
+                    onChange={(e) => update(day, "to", e.target.value)}
                     className="rounded-md border border-border bg-surface-2/40 px-2.5 py-1.5 text-xs text-foreground focus:outline-none focus:border-gold/70 transition-all cursor-pointer"
                   />
                 </div>
               ) : (
-                <span className="flex-1 text-xs text-muted-foreground/60 italic">Closed</span>
+                <span className="flex-1 text-xs text-muted-foreground/60 italic">
+                  Closed
+                </span>
               )}
             </div>
           );
@@ -312,18 +379,18 @@ function BusinessHours() {
       </div>
 
       <div className="mt-8">
-        <SaveButton onClick={() => alert('Business hours saved.')} />
+        <SaveButton onClick={() => alert("Business hours saved.")} />
       </div>
     </section>
   );
 }
 
 function TableConfiguration() {
-  const [totalTables, setTotalTables] = useState('6');
-  const [capacity,    setCapacity]    = useState('4');
-  const [prepTime,    setPrepTime]    = useState('15');
-  const [autoAssign,  setAutoAssign]  = useState(true);
-  const [showStatus,  setShowStatus]  = useState(true);
+  const [totalTables, setTotalTables] = useState("6");
+  const [capacity, setCapacity] = useState("4");
+  const [prepTime, setPrepTime] = useState("15");
+  const [autoAssign, setAutoAssign] = useState(true);
+  const [showStatus, setShowStatus] = useState(true);
 
   return (
     <section id="table-configuration">
@@ -332,17 +399,32 @@ function TableConfiguration() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-6 gap-y-5">
         <div>
           <FieldLabel htmlFor="total-tables">Total Tables</FieldLabel>
-          <TextInput id="total-tables" value={totalTables} onChange={setTotalTables} type="number" />
+          <TextInput
+            id="total-tables"
+            value={totalTables}
+            onChange={setTotalTables}
+            type="number"
+          />
           <FieldHint>Fixed floor layout count.</FieldHint>
         </div>
         <div>
           <FieldLabel htmlFor="seat-cap">Default Seat Capacity</FieldLabel>
-          <TextInput id="seat-cap" value={capacity} onChange={setCapacity} type="number" />
+          <TextInput
+            id="seat-cap"
+            value={capacity}
+            onChange={setCapacity}
+            type="number"
+          />
           <FieldHint>Seats per table by default.</FieldHint>
         </div>
         <div>
           <FieldLabel htmlFor="prep-time">Default Prep Time (min)</FieldLabel>
-          <TextInput id="prep-time" value={prepTime} onChange={setPrepTime} type="number" />
+          <TextInput
+            id="prep-time"
+            value={prepTime}
+            onChange={setPrepTime}
+            type="number"
+          />
           <FieldHint>Kitchen base cooking time.</FieldHint>
         </div>
       </div>
@@ -366,24 +448,24 @@ function TableConfiguration() {
       </div>
 
       <div className="mt-8">
-        <SaveButton onClick={() => alert('Table configuration saved.')} />
+        <SaveButton onClick={() => alert("Table configuration saved.")} />
       </div>
     </section>
   );
 }
 
 function KitchenConfiguration() {
-  const [defaultOrderStatus, setDefaultOrderStatus] = useState('pending');
-  const [queueMode,          setQueueMode]          = useState('fifo');
-  const [maxQueueSize,       setMaxQueueSize]        = useState('20');
-  const [alertThreshold,     setAlertThreshold]      = useState('10');
-  const [defaultPrepTime,    setDefaultPrepTime]     = useState('15');
-  const [starters,           setStarters]            = useState('10');
-  const [mains,              setMains]               = useState('20');
-  const [desserts,           setDesserts]            = useState('12');
-  const [autoAccept,         setAutoAccept]          = useState(false);
-  const [soundAlerts,        setSoundAlerts]         = useState(true);
-  const [autoPriority,       setAutoPriority]        = useState(true);
+  const [defaultOrderStatus, setDefaultOrderStatus] = useState("pending");
+  const [queueMode, setQueueMode] = useState("fifo");
+  const [maxQueueSize, setMaxQueueSize] = useState("20");
+  const [alertThreshold, setAlertThreshold] = useState("10");
+  const [defaultPrepTime, setDefaultPrepTime] = useState("15");
+  const [starters, setStarters] = useState("10");
+  const [mains, setMains] = useState("20");
+  const [desserts, setDesserts] = useState("12");
+  const [autoAccept, setAutoAccept] = useState(false);
+  const [soundAlerts, setSoundAlerts] = useState(true);
+  const [autoPriority, setAutoPriority] = useState(true);
 
   return (
     <section id="kitchen-configuration">
@@ -393,18 +475,22 @@ function KitchenConfiguration() {
       <SubSectionTitle>Default Order Status</SubSectionTitle>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
         <div>
-          <FieldLabel htmlFor="default-order-status">Incoming Order Status</FieldLabel>
+          <FieldLabel htmlFor="default-order-status">
+            Incoming Order Status
+          </FieldLabel>
           <SelectInput
             id="default-order-status"
             value={defaultOrderStatus}
             onChange={setDefaultOrderStatus}
             options={[
-              { value: 'pending',    label: 'Pending – Awaiting Confirmation' },
-              { value: 'confirmed',  label: 'Confirmed – Auto-accepted'       },
-              { value: 'preparing',  label: 'Preparing – Immediately Active'  },
+              { value: "pending", label: "Pending – Awaiting Confirmation" },
+              { value: "confirmed", label: "Confirmed – Auto-accepted" },
+              { value: "preparing", label: "Preparing – Immediately Active" },
             ]}
           />
-          <FieldHint>Status assigned when a new order enters the kitchen queue.</FieldHint>
+          <FieldHint>
+            Status assigned when a new order enters the kitchen queue.
+          </FieldHint>
         </div>
         <div>
           <FieldLabel htmlFor="queue-mode">Queue Processing Mode</FieldLabel>
@@ -413,12 +499,14 @@ function KitchenConfiguration() {
             value={queueMode}
             onChange={setQueueMode}
             options={[
-              { value: 'fifo',     label: 'FIFO – First In, First Out'     },
-              { value: 'priority', label: 'Priority – Urgent items first'  },
-              { value: 'table',    label: 'By Table – Group by table'      },
+              { value: "fifo", label: "FIFO – First In, First Out" },
+              { value: "priority", label: "Priority – Urgent items first" },
+              { value: "table", label: "By Table – Group by table" },
             ]}
           />
-          <FieldHint>How the kitchen board orders and surfaces tickets.</FieldHint>
+          <FieldHint>
+            How the kitchen board orders and surfaces tickets.
+          </FieldHint>
         </div>
       </div>
 
@@ -436,10 +524,14 @@ function KitchenConfiguration() {
             type="number"
             placeholder="20"
           />
-          <FieldHint>Maximum active orders displayed on the kitchen board.</FieldHint>
+          <FieldHint>
+            Maximum active orders displayed on the kitchen board.
+          </FieldHint>
         </div>
         <div>
-          <FieldLabel htmlFor="alert-threshold">Overload Alert Threshold (min)</FieldLabel>
+          <FieldLabel htmlFor="alert-threshold">
+            Overload Alert Threshold (min)
+          </FieldLabel>
           <TextInput
             id="alert-threshold"
             value={alertThreshold}
@@ -447,7 +539,9 @@ function KitchenConfiguration() {
             type="number"
             placeholder="10"
           />
-          <FieldHint>Trigger an alert when an order exceeds this wait time.</FieldHint>
+          <FieldHint>
+            Trigger an alert when an order exceeds this wait time.
+          </FieldHint>
         </div>
       </div>
 
@@ -478,7 +572,9 @@ function KitchenConfiguration() {
       <SubSectionTitle>Preparation Time Settings</SubSectionTitle>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
         <div>
-          <FieldLabel htmlFor="default-prep">Default Preparation Time (min)</FieldLabel>
+          <FieldLabel htmlFor="default-prep">
+            Default Preparation Time (min)
+          </FieldLabel>
           <TextInput
             id="default-prep"
             value={defaultPrepTime}
@@ -486,7 +582,9 @@ function KitchenConfiguration() {
             type="number"
             placeholder="15"
           />
-          <FieldHint>Fallback prep time when no category override is set.</FieldHint>
+          <FieldHint>
+            Fallback prep time when no category override is set.
+          </FieldHint>
         </div>
         <div />
         <div>
@@ -522,42 +620,42 @@ function KitchenConfiguration() {
       </div>
 
       <div className="mt-8">
-        <SaveButton onClick={() => alert('Kitchen configuration saved.')} />
+        <SaveButton onClick={() => alert("Kitchen configuration saved.")} />
       </div>
     </section>
   );
 }
 
 function PaymentConfiguration() {
-  const [cashEnabled,   setCashEnabled]   = useState(true);
-  const [cardEnabled,   setCardEnabled]   = useState(true);
-  const [upiEnabled,    setUpiEnabled]    = useState(true);
-  const [defaultStatus, setDefaultStatus] = useState('unpaid');
-  const [taxPercent,    setTaxPercent]    = useState('5');
-  const [serviceCharge, setServiceCharge] = useState('10');
-  const [roundOff,      setRoundOff]      = useState(true);
-  const [printReceipt,  setPrintReceipt]  = useState(false);
+  const [cashEnabled, setCashEnabled] = useState(true);
+  const [cardEnabled, setCardEnabled] = useState(true);
+  const [upiEnabled, setUpiEnabled] = useState(true);
+  const [defaultStatus, setDefaultStatus] = useState("unpaid");
+  const [taxPercent, setTaxPercent] = useState("5");
+  const [serviceCharge, setServiceCharge] = useState("10");
+  const [roundOff, setRoundOff] = useState(true);
+  const [printReceipt, setPrintReceipt] = useState(false);
 
   const paymentMethods = [
     {
-      id:      'cash',
-      label:   'Cash',
-      hint:    'Accept cash payments at the counter.',
-      value:   cashEnabled,
+      id: "cash",
+      label: "Cash",
+      hint: "Accept cash payments at the counter.",
+      value: cashEnabled,
       onChange: setCashEnabled,
     },
     {
-      id:      'card',
-      label:   'Card',
-      hint:    'Debit and credit card payments via POS terminal.',
-      value:   cardEnabled,
+      id: "card",
+      label: "Card",
+      hint: "Debit and credit card payments via POS terminal.",
+      value: cardEnabled,
       onChange: setCardEnabled,
     },
     {
-      id:      'upi',
-      label:   'UPI',
-      hint:    'Unified Payments Interface — QR-code-based digital payments.',
-      value:   upiEnabled,
+      id: "upi",
+      label: "UPI",
+      hint: "Unified Payments Interface — QR-code-based digital payments.",
+      value: upiEnabled,
       onChange: setUpiEnabled,
     },
   ];
@@ -586,18 +684,25 @@ function PaymentConfiguration() {
       <SubSectionTitle>Default Payment Status</SubSectionTitle>
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
         <div>
-          <FieldLabel htmlFor="default-pay-status">Status on Order Completion</FieldLabel>
+          <FieldLabel htmlFor="default-pay-status">
+            Status on Order Completion
+          </FieldLabel>
           <SelectInput
             id="default-pay-status"
             value={defaultStatus}
             onChange={setDefaultStatus}
             options={[
-              { value: 'unpaid',   label: 'Unpaid – Awaiting cashier settlement' },
-              { value: 'paid',     label: 'Paid – Automatically marked as paid'  },
-              { value: 'pending',  label: 'Pending – Manual review required'     },
+              {
+                value: "unpaid",
+                label: "Unpaid – Awaiting cashier settlement",
+              },
+              { value: "paid", label: "Paid – Automatically marked as paid" },
+              { value: "pending", label: "Pending – Manual review required" },
             ]}
           />
-          <FieldHint>Applied automatically when an order is marked complete.</FieldHint>
+          <FieldHint>
+            Applied automatically when an order is marked complete.
+          </FieldHint>
         </div>
       </div>
 
@@ -646,7 +751,7 @@ function PaymentConfiguration() {
       </div>
 
       <div className="mt-8">
-        <SaveButton onClick={() => alert('Payment configuration saved.')} />
+        <SaveButton onClick={() => alert("Payment configuration saved.")} />
       </div>
     </section>
   );
@@ -654,32 +759,39 @@ function PaymentConfiguration() {
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function AdminSettingsPage() {
-  const [activeSection, setActiveSection] = useState<SectionId>('restaurant-details');
+  const [activeSection, setActiveSection] =
+    useState<SectionId>("restaurant-details");
 
   const renderSection = () => {
     switch (activeSection) {
-      case 'restaurant-details':    return <RestaurantDetails />;
-      case 'business-hours':        return <BusinessHours />;
-      case 'table-configuration':   return <TableConfiguration />;
-      case 'kitchen-configuration': return <KitchenConfiguration />;
-      case 'payment-configuration': return <PaymentConfiguration />;
+      case "restaurant-details":
+        return <RestaurantDetails />;
+      case "business-hours":
+        return <BusinessHours />;
+      case "table-configuration":
+        return <TableConfiguration />;
+      case "kitchen-configuration":
+        return <KitchenConfiguration />;
+      case "payment-configuration":
+        return <PaymentConfiguration />;
     }
   };
 
   return (
     <div className="animate-fade-in">
-
       {/* Page Header */}
       <div className="mb-8 border-b border-border/20 pb-6">
-        <h1 className="text-3xl font-display font-semibold tracking-tight uppercase">Settings</h1>
+        <h1 className="text-3xl font-display font-semibold tracking-tight uppercase">
+          Settings
+        </h1>
         <p className="text-xs text-muted-foreground mt-1">
-          Manage restaurant configuration, kitchen workflow, and payment preferences.
+          Manage restaurant configuration, kitchen workflow, and payment
+          preferences.
         </p>
       </div>
 
       {/* Two-pane layout */}
       <div className="flex gap-8 min-h-[600px]">
-
         {/* ── Left Sidebar Nav ── */}
         <aside className="w-52 shrink-0">
           <nav className="space-y-0.5 sticky top-0">
@@ -691,22 +803,24 @@ export default function AdminSettingsPage() {
                   type="button"
                   onClick={() => setActiveSection(id)}
                   className={cn(
-                    'w-full flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-left transition-all duration-200 group cursor-pointer',
+                    "w-full flex items-center gap-3 rounded-lg px-3.5 py-2.5 text-sm font-medium text-left transition-all duration-200 group cursor-pointer",
                     isActive
-                      ? 'bg-gold/10 text-gold'
-                      : 'text-muted-foreground hover:bg-surface-2/60 hover:text-foreground'
+                      ? "bg-gold/10 text-gold"
+                      : "text-muted-foreground hover:bg-surface-2/60 hover:text-foreground",
                   )}
                 >
                   <Icon
                     className={cn(
-                      'h-4 w-4 shrink-0 transition-colors duration-200',
+                      "h-4 w-4 shrink-0 transition-colors duration-200",
                       isActive
-                        ? 'text-gold'
-                        : 'text-muted-foreground group-hover:text-foreground'
+                        ? "text-gold"
+                        : "text-muted-foreground group-hover:text-foreground",
                     )}
                   />
                   <span className="flex-1 truncate">{label}</span>
-                  {isActive && <ChevronRight className="h-3 w-3 text-gold shrink-0" />}
+                  {isActive && (
+                    <ChevronRight className="h-3 w-3 text-gold shrink-0" />
+                  )}
                 </button>
               );
             })}
@@ -717,10 +831,7 @@ export default function AdminSettingsPage() {
         <div className="w-px bg-border/30 shrink-0" />
 
         {/* ── Right Content Panel ── */}
-        <div className="flex-1 min-w-0 pb-16">
-          {renderSection()}
-        </div>
-
+        <div className="flex-1 min-w-0 pb-16">{renderSection()}</div>
       </div>
     </div>
   );
