@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
-import { getAdminFirestore, isFirebaseConfigured } from '@/lib/firebase/admin';
-import { ensureAppTables } from '@/lib/firebase/collections';
-import { getSessionFromRequest, type SessionPayload } from '@/lib/auth/session';
-import { apiError } from '@/lib/http/api-error';
+import { NextResponse } from "next/server";
+import { getAdminFirestore, isFirebaseConfigured } from "@/lib/firebase/admin";
+import { ensureAppTables } from "@/lib/firebase/collections";
+import { getSessionFromRequest, type SessionPayload } from "@/lib/auth/session";
+import { apiError } from "@/lib/http/api-error";
 
 export function jsonData<T>(data: T, status = 200) {
   return NextResponse.json({ data }, { status });
@@ -10,7 +10,9 @@ export function jsonData<T>(data: T, status = 200) {
 
 export async function ensureDb() {
   if (!isFirebaseConfigured()) {
-    throw new Error('Firebase is not configured. Set FIREBASE_CREDENTIALS in .env');
+    throw new Error(
+      "Firebase is not configured. Set FIREBASE_CREDENTIALS in .env",
+    );
   }
   const db = getAdminFirestore();
   await ensureAppTables(db);
@@ -19,13 +21,35 @@ export async function ensureDb() {
 
 export function requireAuth(request: Request): SessionPayload {
   const session = getSessionFromRequest(request);
-  if (!session) throw new AuthError('Unauthorized', 401);
+  if (!session) throw new AuthError("Unauthorized", 401);
   return session;
 }
 
 export function requireSuperAdmin(request: Request): SessionPayload {
   const session = requireAuth(request);
-  if (session.role !== 'super_admin') throw new AuthError('Access denied', 403);
+  if (session.role !== "super_admin") throw new AuthError("Access denied", 403);
+  return session;
+}
+
+export function isDemoRequest(request: Request): boolean {
+  return getSessionFromRequest(request)?.isDemo === true;
+}
+
+export function blockDemoWrites(request: Request): void {
+  if (isDemoRequest(request)) {
+    throw new AuthError("Demo mode is read-only", 403);
+  }
+}
+
+export function requireNonDemoAuth(request: Request): SessionPayload {
+  const session = requireAuth(request);
+  if (session.isDemo) throw new AuthError("Demo mode is read-only", 403);
+  return session;
+}
+
+export function requireNonDemoSuperAdmin(request: Request): SessionPayload {
+  const session = requireSuperAdmin(request);
+  if (session.isDemo) throw new AuthError("Demo mode is read-only", 403);
   return session;
 }
 
@@ -40,9 +64,12 @@ export class AuthError extends Error {
 
 export function handleRouteError(e: unknown) {
   if (e instanceof AuthError) return apiError(e.message, e.status);
-  if (e instanceof Error && e.message.includes('not configured')) {
+  if (e instanceof Error && e.message.includes("not configured")) {
     return apiError(e.message, 503);
   }
   console.error(e);
-  return apiError(e instanceof Error ? e.message : 'Internal server error', 500);
+  return apiError(
+    e instanceof Error ? e.message : "Internal server error",
+    500,
+  );
 }

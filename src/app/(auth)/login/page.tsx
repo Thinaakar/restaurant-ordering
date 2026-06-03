@@ -5,8 +5,6 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 import {
-  DEMO_SUPER_ADMIN_EMAIL,
-  DEMO_SUPER_ADMIN_PASSWORD,
   RESTAURANT_EMAIL_DOMAIN,
   RESTAURANT_HOSPITALITY,
   RESTAURANT_NAME,
@@ -237,10 +235,14 @@ function LeftPanel() {
         </span>
         <h1 className="text-4xl sm:text-5xl font-serif text-white leading-[1.15] font-normal tracking-tight">
           Elevate Every <br />
-          <span className="italic font-serif text-amber-300">Dining Experience</span>.
+          <span className="italic font-serif text-amber-300">
+            Dining Experience
+          </span>
+          .
         </h1>
         <p className="text-stone-300 text-sm leading-relaxed max-w-md">
-          Manage tables, orders, kitchen operations, billing, and restaurant analytics from one beautifully crafted platform.
+          Manage tables, orders, kitchen operations, billing, and restaurant
+          analytics from one beautifully crafted platform.
         </p>
 
         {/* ── 3-4 Feature Highlights ── */}
@@ -266,7 +268,8 @@ function LeftPanel() {
       {/* ── Simple Luxury Footer (Z-Index above image) ── */}
       <div className="relative z-20 pt-6 border-t border-white/5 text-left">
         <p className="text-[10px] text-stone-400 tracking-wide font-medium">
-          Standardizing high-end operations globally · London · Paris · Tokyo · New York
+          Standardizing high-end operations globally · London · Paris · Tokyo ·
+          New York
         </p>
       </div>
     </div>
@@ -281,7 +284,7 @@ function LoginForm({
   onSwitch: (v: View) => void;
   onSuccess: () => void;
 }) {
-  const { login } = useAuth();
+  const { login, demoLogin } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -380,16 +383,20 @@ function LoginForm({
           />
           <button
             type="button"
+            disabled={loading}
             onClick={() => {
-              setEmail(DEMO_SUPER_ADMIN_EMAIL);
-              setPassword(DEMO_SUPER_ADMIN_PASSWORD);
-              setErrors({});
               setGlobalError("");
+              setLoading(true);
+              demoLogin().then((ok) => {
+                setLoading(false);
+                if (ok) onSuccess();
+                else setGlobalError("Demo login failed. Please try again.");
+              });
             }}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border border-dashed border-amber-300/80 text-amber-800 bg-amber-50/50 hover:bg-amber-50 hover:border-amber-400/90 transition-all duration-200"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-semibold border border-dashed border-amber-300/80 text-amber-800 bg-amber-50/50 hover:bg-amber-50 hover:border-amber-400/90 transition-all duration-200 disabled:opacity-50"
           >
             <Zap className="h-3.5 w-3.5" />
-            Quick Fill Super Admin
+            Demo Super Admin (full access, read-only data)
           </button>
         </div>
       </form>
@@ -449,7 +456,8 @@ function ForgotForm({ onSwitch }: { onSwitch: (v: View) => void }) {
             Password updated
           </h2>
           <p className="text-xs text-stone-500 max-w-xs mx-auto leading-relaxed">
-            Your telemetry key has been reset successfully. You can now access your restaurant console.
+            Your telemetry key has been reset successfully. You can now access
+            your restaurant console.
           </p>
         </div>
         <button
@@ -467,7 +475,10 @@ function ForgotForm({ onSwitch }: { onSwitch: (v: View) => void }) {
     <div className="space-y-6">
       <div className="text-center sm:text-left">
         <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-50 border border-amber-200/50 mb-4">
-          <RefreshCw className="h-5 w-5 text-amber-700 animate-spin" style={{ animationDuration: "3s" }} />
+          <RefreshCw
+            className="h-5 w-5 text-amber-700 animate-spin"
+            style={{ animationDuration: "3s" }}
+          />
         </div>
         <h2 className="text-2xl font-serif text-stone-900 font-normal mb-1.5 tracking-tight">
           Reset password
@@ -594,8 +605,12 @@ export default function AuthPage() {
             <ChefHat className="h-5 w-5 text-amber-400" />
           </div>
           <div className="flex flex-col text-left">
-            <span className="text-base font-serif font-bold text-stone-900 leading-none">{RESTAURANT_NAME}</span>
-            <span className="text-[7px] font-bold uppercase tracking-wider text-amber-700 mt-0.5">Luxury Hospitality OS</span>
+            <span className="text-base font-serif font-bold text-stone-900 leading-none">
+              {RESTAURANT_NAME}
+            </span>
+            <span className="text-[7px] font-bold uppercase tracking-wider text-amber-700 mt-0.5">
+              Luxury Hospitality OS
+            </span>
           </div>
         </div>
 
@@ -642,7 +657,8 @@ export default function AuthPage() {
               </a>
             </div>
             <p className="text-center text-[10px] text-stone-400 font-medium">
-              © 2026 {RESTAURANT_HOSPITALITY} · Standardizing Culinary Excellence
+              © 2026 {RESTAURANT_HOSPITALITY} · Standardizing Culinary
+              Excellence
             </p>
           </div>
         </div>

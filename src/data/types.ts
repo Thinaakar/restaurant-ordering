@@ -1,5 +1,5 @@
 /* ── Table ────────────────────────────────────────────── */
-export type TableStatus = 'available' | 'occupied' | 'cleaning';
+export type TableStatus = "available" | "occupied" | "cleaning";
 
 export interface RestaurantTable {
   id: string;
@@ -11,7 +11,7 @@ export interface RestaurantTable {
 }
 
 /* ── Menu ─────────────────────────────────────────────── */
-export type SpiceLevel = 'mild' | 'medium' | 'hot' | 'extra-hot';
+export type SpiceLevel = "mild" | "medium" | "hot" | "extra-hot";
 
 export interface MenuItem {
   id: string;
@@ -35,8 +35,8 @@ export interface CartItem {
 }
 
 /* ── Order ────────────────────────────────────────────── */
-export type OrderStatus = 'pending' | 'preparing' | 'ready' | 'completed';
-export type PaymentStatus = 'pending' | 'paid';
+export type OrderStatus = "pending" | "preparing" | "ready" | "completed";
+export type PaymentStatus = "pending" | "paid";
 
 export interface OrderItem {
   menuItemId: string;
@@ -73,7 +73,6 @@ export interface HourlyData {
   orders: number;
 }
 
-
 export interface TableUtilization {
   tableNumber: number;
   usagePercent: number;
@@ -95,19 +94,25 @@ export interface AnalyticsSummary {
 }
 
 /* ── Auth ─────────────────────────────────────────────── */
-export type AdminAccountRole = 'super_admin' | 'admin';
+export type AdminAccountRole = "super_admin" | "admin";
 
 export interface AdminUser {
   email: string;
   name: string;
   role: AdminAccountRole;
   avatar?: string;
+  isDemo?: boolean;
 }
 
 /* ── User Management ──────────────────────────────────── */
-export type UserRole = 'super_admin' | 'admin' | 'kitchen_chef' | 'waiter' | 'cashier';
-export type RoleStatus = 'active' | 'inactive';
-export type UserStatus = 'active' | 'inactive';
+export type UserRole =
+  | "super_admin"
+  | "admin"
+  | "kitchen_chef"
+  | "waiter"
+  | "cashier";
+export type RoleStatus = "active" | "inactive";
+export type UserStatus = "active" | "inactive";
 
 export interface ManagedUser {
   id: string;

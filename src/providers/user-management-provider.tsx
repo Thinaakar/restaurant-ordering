@@ -1,9 +1,21 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import type { ManagedUser, Role, UserRole, UserStatus, RoleStatus } from '@/data/types';
-import { apiJson } from '@/lib/http/client';
-import { useAuth } from '@/hooks/use-auth';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
+import type {
+  ManagedUser,
+  Role,
+  UserRole,
+  UserStatus,
+  RoleStatus,
+} from "@/data/types";
+import { apiJson } from "@/lib/http/client";
+import { useAuth } from "@/hooks/use-auth";
 
 export interface NewUserForm {
   fullName: string;
@@ -47,10 +59,16 @@ interface UserManagementContextType {
   updateRolePermissions: (id: string, permissions: string[]) => void;
 }
 
-const UserManagementContext = createContext<UserManagementContextType | undefined>(undefined);
+const UserManagementContext = createContext<
+  UserManagementContextType | undefined
+>(undefined);
 
-export function UserManagementProvider({ children }: { children: React.ReactNode }) {
-  const { user } = useAuth();
+export function UserManagementProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const { user, isDemo } = useAuth();
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,18 +76,18 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
   const refresh = useCallback(async () => {
     setLoading(true);
     try {
-      const usersData = await apiJson<ManagedUser[]>('/api/users');
+      const usersData = await apiJson<ManagedUser[]>("/api/users");
       setUsers(usersData);
-      if (user?.role === 'super_admin') {
-        const rolesData = await apiJson<Role[]>('/api/roles');
+      if (user?.role === "super_admin") {
+        const rolesData = await apiJson<Role[]>("/api/roles");
         setRoles(rolesData);
       }
     } catch (e) {
-      console.error('Failed to load user management data', e);
+      console.error("Failed to load user management data", e);
     } finally {
       setLoading(false);
     }
-  }, [user?.role]);
+  }, [user?.role, isDemo]);
 
   useEffect(() => {
     if (user) void refresh();
@@ -82,8 +100,8 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
 
   const addUser = useCallback(async (form: NewUserForm) => {
     const { password: _p, confirmPassword: _c, ...payload } = form;
-    const created = await apiJson<ManagedUser>('/api/users', {
-      method: 'POST',
+    const created = await apiJson<ManagedUser>("/api/users", {
+      method: "POST",
       body: JSON.stringify(payload),
     });
     setUsers((prev) => [created, ...prev]);
@@ -92,13 +110,15 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
 
   const updateUser = useCallback((id: string, form: EditUserForm) => {
     void apiJson<ManagedUser>(`/api/users/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(form),
-    }).then((updated) => setUsers((prev) => prev.map((u) => (u.id === id ? updated : u))));
+    }).then((updated) =>
+      setUsers((prev) => prev.map((u) => (u.id === id ? updated : u))),
+    );
   }, []);
 
   const deleteUser = useCallback((id: string) => {
-    void apiJson(`/api/users/${id}`, { method: 'DELETE' }).then(() =>
+    void apiJson(`/api/users/${id}`, { method: "DELETE" }).then(() =>
       setUsers((prev) => prev.filter((u) => u.id !== id)),
     );
   }, []);
@@ -112,13 +132,16 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
         email: u.email,
         phone: u.phone,
         role: u.role,
-        status: u.status === 'active' ? 'inactive' : 'active',
+        status: u.status === "active" ? "inactive" : "active",
       });
     },
     [users, updateUser],
   );
 
-  const getUserById = useCallback((id: string) => users.find((u) => u.id === id) ?? null, [users]);
+  const getUserById = useCallback(
+    (id: string) => users.find((u) => u.id === id) ?? null,
+    [users],
+  );
 
   const getUserCountByRole = useCallback(
     (roleName: string) => users.filter((u) => u.role === roleName).length,
@@ -126,8 +149,8 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
   );
 
   const addRole = useCallback(async (form: RoleFormData) => {
-    const created = await apiJson<Role>('/api/roles', {
-      method: 'POST',
+    const created = await apiJson<Role>("/api/roles", {
+      method: "POST",
       body: JSON.stringify(form),
     });
     setRoles((prev) => [...prev, created]);
@@ -136,14 +159,16 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
 
   const updateRole = useCallback((id: string, form: RoleFormData) => {
     void apiJson<Role>(`/api/roles/${id}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(form),
-    }).then((updated) => setRoles((prev) => prev.map((r) => (r.id === id ? updated : r))));
+    }).then((updated) =>
+      setRoles((prev) => prev.map((r) => (r.id === id ? updated : r))),
+    );
   }, []);
 
   const deleteRole = useCallback(async (id: string): Promise<boolean> => {
     try {
-      await apiJson(`/api/roles/${id}`, { method: 'DELETE' });
+      await apiJson(`/api/roles/${id}`, { method: "DELETE" });
       setRoles((prev) => prev.filter((r) => r.id !== id));
       return true;
     } catch {
@@ -151,12 +176,17 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
     }
   }, []);
 
-  const updateRolePermissions = useCallback((id: string, permissions: string[]) => {
-    void apiJson<Role>(`/api/roles/${id}/permissions`, {
-      method: 'PATCH',
-      body: JSON.stringify({ permissions }),
-    }).then((updated) => setRoles((prev) => prev.map((r) => (r.id === id ? updated : r))));
-  }, []);
+  const updateRolePermissions = useCallback(
+    (id: string, permissions: string[]) => {
+      void apiJson<Role>(`/api/roles/${id}/permissions`, {
+        method: "PATCH",
+        body: JSON.stringify({ permissions }),
+      }).then((updated) =>
+        setRoles((prev) => prev.map((r) => (r.id === id ? updated : r))),
+      );
+    },
+    [],
+  );
 
   return (
     <UserManagementContext.Provider
@@ -184,7 +214,10 @@ export function UserManagementProvider({ children }: { children: React.ReactNode
 
 export function useUserManagement() {
   const ctx = useContext(UserManagementContext);
-  if (!ctx) throw new Error('useUserManagement must be used within UserManagementProvider');
+  if (!ctx)
+    throw new Error(
+      "useUserManagement must be used within UserManagementProvider",
+    );
   return ctx;
 }
 

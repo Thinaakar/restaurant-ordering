@@ -1,11 +1,16 @@
-import { seedDatabaseIfEmpty } from '@/lib/firestore/seed';
-import { ensureDb, handleRouteError, jsonData, requireSuperAdmin } from '@/lib/api/route-helpers';
+import { seedDatabaseIfEmpty } from "@/lib/firestore/seed";
+import {
+  ensureDb,
+  handleRouteError,
+  jsonData,
+  requireNonDemoSuperAdmin,
+} from "@/lib/api/route-helpers";
 
 /** Loads sample tables, menu, orders, users, and roles (only when collections are empty). */
 export async function POST(request: Request) {
   try {
+    requireNonDemoSuperAdmin(request);
     await ensureDb();
-    requireSuperAdmin(request);
     const result = await seedDatabaseIfEmpty();
     return jsonData(result);
   } catch (e) {

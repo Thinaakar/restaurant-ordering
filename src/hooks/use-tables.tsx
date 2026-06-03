@@ -1,8 +1,15 @@
-'use client';
+"use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import type { RestaurantTable, TableStatus } from '@/data/types';
-import { apiJson } from '@/lib/http/client';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
+import type { RestaurantTable, TableStatus } from "@/data/types";
+import { apiJson } from "@/lib/http/client";
+import { useAuth } from "@/hooks/use-auth";
 
 interface TablesContextType {
   tables: RestaurantTable[];
@@ -19,15 +26,16 @@ interface TablesContextType {
 const TablesContext = createContext<TablesContextType | undefined>(undefined);
 
 export function TablesProvider({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated } = useAuth();
   const [tables, setTables] = useState<RestaurantTable[]>([]);
   const [loading, setLoading] = useState(true);
 
   const refresh = useCallback(async () => {
     try {
-      const data = await apiJson<RestaurantTable[]>('/api/tables');
+      const data = await apiJson<RestaurantTable[]>("/api/tables");
       setTables(data);
     } catch (e) {
-      console.error('Failed to load tables', e);
+      console.error("Failed to load tables", e);
     } finally {
       setLoading(false);
     }
@@ -35,45 +43,51 @@ export function TablesProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+  }, [refresh, isAuthenticated]);
 
-  const patchTable = async (tableId: string, patch: Partial<RestaurantTable>) => {
+  const patchTable = async (
+    tableId: string,
+    patch: Partial<RestaurantTable>,
+  ) => {
     const updated = await apiJson<RestaurantTable>(`/api/tables/${tableId}`, {
-      method: 'PATCH',
+      method: "PATCH",
       body: JSON.stringify(patch),
     });
     setTables((prev) => prev.map((t) => (t.id === tableId ? updated : t)));
   };
 
   const occupyTable = (tableId: string, orderId: string) => {
-    void patchTable(tableId, { status: 'occupied', currentOrderId: orderId });
+    void patchTable(tableId, { status: "occupied", currentOrderId: orderId });
   };
 
   const freeTable = (tableId: string) => {
-    void patchTable(tableId, { status: 'available', currentOrderId: undefined });
+    void patchTable(tableId, {
+      status: "available",
+      currentOrderId: undefined,
+    });
   };
 
   const setCleaningStatus = (tableId: string) => {
-    void patchTable(tableId, { status: 'cleaning', currentOrderId: undefined });
+    void patchTable(tableId, { status: "cleaning", currentOrderId: undefined });
   };
 
   const updateTableStatus = (tableId: string, status: TableStatus) => {
     const patch: Partial<RestaurantTable> = { status };
-    if (status === 'available' || status === 'cleaning') {
+    if (status === "available" || status === "cleaning") {
       patch.currentOrderId = undefined;
     }
     void patchTable(tableId, patch);
   };
 
   const addTable = (number: number, seats: number, floor: number) => {
-    void apiJson<RestaurantTable>('/api/tables', {
-      method: 'POST',
+    void apiJson<RestaurantTable>("/api/tables", {
+      method: "POST",
       body: JSON.stringify({ number, seats, floor }),
     }).then((created) => setTables((prev) => [...prev, created]));
   };
 
   const deleteTable = (tableId: string) => {
-    void apiJson(`/api/tables/${tableId}`, { method: 'DELETE' }).then(() =>
+    void apiJson(`/api/tables/${tableId}`, { method: "DELETE" }).then(() =>
       setTables((prev) => prev.filter((t) => t.id !== tableId)),
     );
   };
@@ -100,7 +114,7 @@ export function TablesProvider({ children }: { children: React.ReactNode }) {
 export function useTables() {
   const context = useContext(TablesContext);
   if (context === undefined) {
-    throw new Error('useTables must be used within a TablesProvider');
+    throw new Error("useTables must be used within a TablesProvider");
   }
   return context;
 }
