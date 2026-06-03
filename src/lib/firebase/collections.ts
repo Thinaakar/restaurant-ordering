@@ -1,6 +1,6 @@
 import { FieldValue, type Firestore } from 'firebase-admin/firestore';
 
-import { appTemplate } from '@/templates/app';
+import { appTemplate } from '@/templates/restraunt-ordering';
 
 export const TEMPLATE_COLLECTION = 'templates';
 export const APP_TEMPLATE_ID = appTemplate.key;
