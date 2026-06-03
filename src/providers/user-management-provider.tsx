@@ -7,12 +7,7 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
-import type {
-  ManagedUser,
-  Role,
-  UserStatus,
-  RoleStatus,
-} from "@/data/types";
+import type { ManagedUser, Role, UserStatus, RoleStatus } from "@/data/types";
 import { apiJson } from "@/lib/http/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -67,7 +62,7 @@ export function UserManagementProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const { user, isDemo } = useAuth();
+  const { user } = useAuth();
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
@@ -88,7 +83,7 @@ export function UserManagementProvider({
     } finally {
       setLoading(false);
     }
-  }, [user?.role, isDemo]);
+  }, [user?.role]);
 
   useEffect(() => {
     if (user) void refresh();
@@ -99,15 +94,21 @@ export function UserManagementProvider({
     }
   }, [user, refresh]);
 
-  const addUser = useCallback(async (form: NewUserForm) => {
-    const { password: _p, confirmPassword: _c, ...payload } = form;
-    const created = await apiJson<ManagedUser>("/api/users", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
-    setUsers((prev) => [created, ...prev]);
-    return created;
-  }, []);
+  const addUser = useCallback(
+    async (form: NewUserForm) => {
+      const { password: _p, confirmPassword: _c, ...payload } = form;
+      const created = await apiJson<ManagedUser>("/api/users", {
+        method: "POST",
+        body: JSON.stringify(payload),
+      });
+      setUsers((prev) =>
+        prev.some((u) => u.id === created.id) ? prev : [...prev, created],
+      );
+      await refresh();
+      return created;
+    },
+    [refresh],
+  );
 
   const updateUser = useCallback((id: string, form: EditUserForm) => {
     void apiJson<ManagedUser>(`/api/users/${id}`, {

@@ -1,13 +1,14 @@
-import { getMenuItem } from "@/lib/firestore/app-data";
 import { updateMenuItem, deleteMenuItem } from "@/lib/firestore/app-writes";
 import { menuItemUpdateSchema } from "@/lib/validation/entities";
-import { getDemoMenuItemById } from "@/lib/demo";
+import { getMenuItemForRequest } from "@/lib/demo/request-data";
+import { getDemoMenuItemById, isDemoSampleId } from "@/lib/demo/read-model";
+import { seedDemoSampleOverride } from "@/lib/demo/sample-overrides";
+import { deleteRecordOrHideDemoSample } from "@/lib/demo/delete-sample";
 import {
   ensureDb,
   handleRouteError,
-  isDemoRequest,
   jsonData,
-  requireNonDemoAuth,
+  requireAuth,
 } from "@/lib/api/route-helpers";
 import { apiError } from "@/lib/http/api-error";
 
@@ -15,14 +16,9 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function GET(request: Request, { params }: Params) {
   try {
-    const { id } = await params;
-    if (isDemoRequest(request)) {
-      const item = getDemoMenuItemById(id);
-      if (!item) return apiError("Menu item not found", 404);
-      return jsonData(item);
-    }
     await ensureDb();
-    const item = await getMenuItem(id);
+    const { id } = await params;
+    const item = await getMenuItemForRequest(request, id);
     if (!item) return apiError("Menu item not found", 404);
     return jsonData(item);
   } catch (e) {
@@ -32,11 +28,18 @@ export async function GET(request: Request, { params }: Params) {
 
 export async function PATCH(request: Request, { params }: Params) {
   try {
-    requireNonDemoAuth(request);
     await ensureDb();
+    requireAuth(request);
     const { id } = await params;
     const body = menuItemUpdateSchema.parse(await request.json());
-    const item = await updateMenuItem(id, body);
+    let item = await updateMenuItem(id, body);
+    if (!item && isDemoSampleId(id)) {
+      const sample = getDemoMenuItemById(id);
+      if (!sample) return apiError("Menu item not found", 404);
+      const merged = { ...sample, ...body };
+      await seedDemoSampleOverride("menu_items", id, merged);
+      item = merged;
+    }
     if (!item) return apiError("Menu item not found", 404);
     return jsonData(item);
   } catch (e) {
@@ -46,10 +49,12 @@ export async function PATCH(request: Request, { params }: Params) {
 
 export async function DELETE(request: Request, { params }: Params) {
   try {
-    requireNonDemoAuth(request);
     await ensureDb();
+    requireAuth(request);
     const { id } = await params;
-    await deleteMenuItem(id);
+    await deleteRecordOrHideDemoSample("menu_items", id, async () => {
+      await deleteMenuItem(id);
+    });
     return jsonData({ ok: true });
   } catch (e) {
     return handleRouteError(e);

@@ -1,22 +1,20 @@
-import { listManagedUsers } from "@/lib/firestore/app-data";
 import { createManagedUser } from "@/lib/firestore/app-writes";
 import { managedUserCreateSchema } from "@/lib/validation/entities";
-import { demoManagedUsers } from "@/lib/demo";
+import { listManagedUsersForRequest } from "@/lib/demo/request-data";
+import { trackDemoCreated } from "@/lib/demo/created-records";
 import {
   ensureDb,
   handleRouteError,
   isDemoRequest,
   jsonData,
   requireAuth,
-  requireNonDemoAuth,
 } from "@/lib/api/route-helpers";
 
 export async function GET(request: Request) {
   try {
-    requireAuth(request);
-    if (isDemoRequest(request)) return jsonData(demoManagedUsers);
     await ensureDb();
-    return jsonData(await listManagedUsers());
+    requireAuth(request);
+    return jsonData(await listManagedUsersForRequest(request));
   } catch (e) {
     return handleRouteError(e);
   }
@@ -24,10 +22,14 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    requireNonDemoAuth(request);
     await ensureDb();
+    requireAuth(request);
     const body = managedUserCreateSchema.parse(await request.json());
-    return jsonData(await createManagedUser(body), 201);
+    const created = await createManagedUser(body);
+    if (isDemoRequest(request)) {
+      await trackDemoCreated("managed_users", created.id);
+    }
+    return jsonData(created, 201);
   } catch (e) {
     return handleRouteError(e);
   }

@@ -1,10 +1,10 @@
 /** Firestore write helpers (create, update, delete). */
 
-import { FieldValue } from 'firebase-admin/firestore';
-import { getAdminFirestore } from '@/lib/firebase/admin';
-import { appCollection } from '@/lib/firebase/collections';
-import { stripUndefined } from '@/lib/firestore/helpers';
-import { hashPassword } from '@/lib/auth/password';
+import { FieldValue } from "firebase-admin/firestore";
+import { getAdminFirestore } from "@/lib/firebase/admin";
+import { appCollection } from "@/lib/firebase/collections";
+import { stripUndefined } from "@/lib/firestore/helpers";
+import { hashPassword } from "@/lib/auth/password";
 import type {
   RestaurantTable,
   MenuItem,
@@ -14,8 +14,8 @@ import type {
   TableStatus,
   OrderStatus,
   PaymentStatus,
-} from '@/data/types';
-import type { AdminAccountRecord } from '@/lib/firestore/app-data';
+} from "@/data/types";
+import type { AdminAccountRecord } from "@/lib/firestore/app-data";
 
 function col(table: string) {
   return appCollection(getAdminFirestore(), table);
@@ -27,11 +27,14 @@ export async function upsertAdminAccount(input: {
   email: string;
   password: string;
   name: string;
-  role: AdminAccountRecord['role'];
+  role: AdminAccountRecord["role"];
   avatar?: string;
 }): Promise<void> {
   const email = input.email.toLowerCase();
-  const existing = await col('admin_accounts').where('email', '==', email).limit(1).get();
+  const existing = await col("admin_accounts")
+    .where("email", "==", email)
+    .limit(1)
+    .get();
   const payload = stripUndefined({
     email,
     passwordHash: hashPassword(input.password),
@@ -41,7 +44,7 @@ export async function upsertAdminAccount(input: {
     updatedAt: FieldValue.serverTimestamp(),
   });
   if (existing.empty) {
-    await col('admin_accounts').add({
+    await col("admin_accounts").add({
       ...payload,
       createdAt: FieldValue.serverTimestamp(),
     });
@@ -58,8 +61,8 @@ export async function createTable(input: {
   floor: number;
   status?: TableStatus;
 }): Promise<RestaurantTable> {
-  const ref = col('tables').doc();
-  const status = input.status ?? 'available';
+  const ref = col("tables").doc();
+  const status = input.status ?? "available";
   await ref.set({
     number: input.number,
     seats: input.seats,
@@ -68,21 +71,31 @@ export async function createTable(input: {
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });
-  return { id: ref.id, number: input.number, seats: input.seats, floor: input.floor, status };
+  return {
+    id: ref.id,
+    number: input.number,
+    seats: input.seats,
+    floor: input.floor,
+    status,
+  };
 }
 
 export async function updateTable(
   id: string,
   input: Partial<RestaurantTable>,
 ): Promise<RestaurantTable | null> {
-  const ref = col('tables').doc(id);
-  const patch: Record<string, unknown> = { updatedAt: FieldValue.serverTimestamp() };
+  const ref = col("tables").doc(id);
+  const patch: Record<string, unknown> = {
+    updatedAt: FieldValue.serverTimestamp(),
+  };
   if (input.number !== undefined) patch.number = input.number;
   if (input.seats !== undefined) patch.seats = input.seats;
   if (input.floor !== undefined) patch.floor = input.floor;
   if (input.status !== undefined) patch.status = input.status;
-  if (input.currentOrderId !== undefined) patch.currentOrderId = input.currentOrderId;
-  else if ('currentOrderId' in input) patch.currentOrderId = FieldValue.delete();
+  if (input.currentOrderId !== undefined)
+    patch.currentOrderId = input.currentOrderId;
+  else if ("currentOrderId" in input)
+    patch.currentOrderId = FieldValue.delete();
   await ref.set(patch, { merge: true });
   const doc = await ref.get();
   if (!doc.exists) return null;
@@ -98,28 +111,43 @@ export async function updateTable(
 }
 
 export async function deleteTable(id: string): Promise<boolean> {
-  await col('tables').doc(id).delete();
+  await col("tables").doc(id).delete();
   return true;
 }
 
 // ── Menu ──────────────────────────────────────────────────────
 
-export async function createMenuItem(input: Omit<MenuItem, 'id'>): Promise<MenuItem> {
-  const ref = col('menu_items').doc();
-  await ref.set({ ...input, createdAt: FieldValue.serverTimestamp(), updatedAt: FieldValue.serverTimestamp() });
+export async function createMenuItem(
+  input: Omit<MenuItem, "id">,
+): Promise<MenuItem> {
+  const ref = col("menu_items").doc();
+  await ref.set({
+    ...input,
+    createdAt: FieldValue.serverTimestamp(),
+    updatedAt: FieldValue.serverTimestamp(),
+  });
   return { id: ref.id, ...input };
 }
 
-export async function updateMenuItem(id: string, input: Partial<MenuItem>): Promise<MenuItem | null> {
-  const ref = col('menu_items').doc(id);
-  await ref.set({ ...stripUndefined(input as Record<string, unknown>), updatedAt: FieldValue.serverTimestamp() }, { merge: true });
+export async function updateMenuItem(
+  id: string,
+  input: Partial<MenuItem>,
+): Promise<MenuItem | null> {
+  const ref = col("menu_items").doc(id);
+  await ref.set(
+    {
+      ...stripUndefined(input as Record<string, unknown>),
+      updatedAt: FieldValue.serverTimestamp(),
+    },
+    { merge: true },
+  );
   const doc = await ref.get();
   if (!doc.exists) return null;
   return { id: doc.id, ...doc.data() } as MenuItem;
 }
 
 export async function deleteMenuItem(id: string): Promise<boolean> {
-  await col('menu_items').doc(id).delete();
+  await col("menu_items").doc(id).delete();
   return true;
 }
 
@@ -128,19 +156,19 @@ export async function deleteMenuItem(id: string): Promise<boolean> {
 export async function createOrder(input: {
   tableId: string;
   tableNumber: number;
-  items: Order['items'];
+  items: Order["items"];
   notes?: string;
 }): Promise<Order> {
   const subtotal = input.items.reduce((s, i) => s + i.price * i.quantity, 0);
   const tax = Math.round(subtotal * 0.05 * 100) / 100;
   const total = subtotal + tax;
-  const ref = col('orders').doc();
-  const order: Omit<Order, 'id'> = {
+  const ref = col("orders").doc();
+  const order: Omit<Order, "id"> = {
     tableId: input.tableId,
     tableNumber: input.tableNumber,
     items: input.items,
-    status: 'pending',
-    paymentStatus: 'pending',
+    status: "pending",
+    paymentStatus: "pending",
     subtotal,
     tax,
     total,
@@ -153,12 +181,18 @@ export async function createOrder(input: {
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });
-  await updateTable(input.tableId, { status: 'occupied', currentOrderId: ref.id });
+  await updateTable(input.tableId, {
+    status: "occupied",
+    currentOrderId: ref.id,
+  });
   return { id: ref.id, ...order };
 }
 
-export async function updateOrder(id: string, input: Partial<Order>): Promise<Order | null> {
-  const ref = col('orders').doc(id);
+export async function updateOrder(
+  id: string,
+  input: Partial<Order>,
+): Promise<Order | null> {
+  const ref = col("orders").doc(id);
   const existing = await ref.get();
   if (!existing.exists) return null;
   const prev = existing.data() as Order;
@@ -185,37 +219,44 @@ export async function updateOrder(id: string, input: Partial<Order>): Promise<Or
     }),
     { merge: true },
   );
-  if (status === 'completed' && prev.tableId) {
-    await updateTable(prev.tableId, { status: 'cleaning', currentOrderId: undefined });
+  if (status === "completed" && prev.tableId) {
+    await updateTable(prev.tableId, {
+      status: "cleaning",
+      currentOrderId: undefined,
+    });
   }
   const doc = await ref.get();
   const d = doc.data()!;
   return {
     ...d,
     id: doc.id,
-    createdAt: typeof d.createdAt === 'string' ? d.createdAt : new Date().toISOString(),
+    createdAt:
+      typeof d.createdAt === "string" ? d.createdAt : new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   } as Order;
 }
 
 export async function deleteOrder(id: string): Promise<boolean> {
-  const order = await col('orders').doc(id).get();
+  const order = await col("orders").doc(id).get();
   if (order.exists) {
     const d = order.data();
     if (d?.tableId) {
-      await updateTable(d.tableId as string, { status: 'available', currentOrderId: undefined });
+      await updateTable(d.tableId as string, {
+        status: "available",
+        currentOrderId: undefined,
+      });
     }
   }
-  await col('orders').doc(id).delete();
+  await col("orders").doc(id).delete();
   return true;
 }
 
 // ── Managed users ─────────────────────────────────────────────
 
 export async function createManagedUser(
-  input: Omit<ManagedUser, 'id' | 'createdAt' | 'updatedAt'>,
+  input: Omit<ManagedUser, "id" | "createdAt" | "updatedAt">,
 ): Promise<ManagedUser> {
-  const ref = col('managed_users').doc();
+  const ref = col("managed_users").doc();
   const now = new Date().toISOString();
   await ref.set({
     ...input,
@@ -229,9 +270,12 @@ export async function updateManagedUser(
   id: string,
   input: Partial<ManagedUser>,
 ): Promise<ManagedUser | null> {
-  const ref = col('managed_users').doc(id);
+  const ref = col("managed_users").doc(id);
   await ref.set(
-    stripUndefined({ ...input, updatedAt: FieldValue.serverTimestamp() } as Record<string, unknown>),
+    stripUndefined({
+      ...input,
+      updatedAt: FieldValue.serverTimestamp(),
+    } as Record<string, unknown>),
     { merge: true },
   );
   const doc = await ref.get();
@@ -246,24 +290,27 @@ export async function updateManagedUser(
 }
 
 export async function deleteManagedUser(id: string): Promise<boolean> {
-  await col('managed_users').doc(id).delete();
+  await col("managed_users").doc(id).delete();
   return true;
 }
 
 // ── Roles ─────────────────────────────────────────────────────
 
 export async function createRole(
-  input: Omit<Role, 'id' | 'name' | 'color' | 'isSystem'> & { name?: string; color?: string },
+  input: Omit<Role, "id" | "name" | "color" | "isSystem"> & {
+    name?: string;
+    color?: string;
+  },
 ): Promise<Role> {
-  const ref = col('roles').doc();
-  const name = input.name ?? input.label.toLowerCase().replace(/\s+/g, '_');
+  const ref = col("roles").doc();
+  const name = input.name ?? input.label.toLowerCase().replace(/\s+/g, "_");
   const role: Role = {
     id: ref.id,
     name,
     label: input.label,
     description: input.description,
     permissions: input.permissions,
-    color: input.color ?? 'blue',
+    color: input.color ?? "blue",
     status: input.status,
     isSystem: false,
   };
@@ -271,8 +318,11 @@ export async function createRole(
   return role;
 }
 
-export async function updateRole(id: string, input: Partial<Role>): Promise<Role | null> {
-  const ref = col('roles').doc(id);
+export async function updateRole(
+  id: string,
+  input: Partial<Role>,
+): Promise<Role | null> {
+  const ref = col("roles").doc(id);
   const existing = await ref.get();
   if (!existing.exists) return null;
   const prev = existing.data() as Role;
@@ -280,36 +330,48 @@ export async function updateRole(id: string, input: Partial<Role>): Promise<Role
   if (prev.isSystem) {
     merged.name = prev.name;
   }
-  await ref.set(stripUndefined(merged as Record<string, unknown>), { merge: true });
+  await ref.set(stripUndefined(merged as Record<string, unknown>), {
+    merge: true,
+  });
   const doc = await ref.get();
   return doc.data() as Role;
 }
 
-export async function updateRolePermissions(id: string, permissions: string[]): Promise<Role | null> {
+export async function updateRolePermissions(
+  id: string,
+  permissions: string[],
+): Promise<Role | null> {
   return updateRole(id, { permissions });
 }
 
 export async function deleteRole(id: string): Promise<boolean> {
-  const role = await col('roles').doc(id).get();
+  const role = await col("roles").doc(id).get();
   if (!role.exists) return false;
   if ((role.data() as Role).isSystem) return false;
-  await col('roles').doc(id).delete();
+  await col("roles").doc(id).delete();
   return true;
 }
 
 // ── Settings ──────────────────────────────────────────────────
 
-export async function updateSettings(payload: Record<string, unknown>): Promise<Record<string, unknown>> {
-  await col('settings').doc('default').set(
-    { payload, updatedAt: FieldValue.serverTimestamp() },
-    { merge: true },
-  );
+export async function updateSettings(
+  payload: Record<string, unknown>,
+): Promise<Record<string, unknown>> {
+  await col("settings")
+    .doc("default")
+    .set({ payload, updatedAt: FieldValue.serverTimestamp() }, { merge: true });
   return payload;
 }
 
 // ── Clear operational data (dashboard starts at zero) ───────
 
-const OPERATIONAL_TABLES = ['orders', 'tables', 'menu_items', 'managed_users', 'roles'] as const;
+const OPERATIONAL_TABLES = [
+  "orders",
+  "tables",
+  "menu_items",
+  "managed_users",
+  "roles",
+] as const;
 
 async function deleteAllInCollection(tableKey: string): Promise<number> {
   const db = getAdminFirestore();
@@ -332,10 +394,12 @@ async function deleteAllInCollection(tableKey: string): Promise<number> {
 
 /** Removes tables, menu, orders, users, and roles. Keeps admin login accounts. */
 export async function clearOperationalData(): Promise<Record<string, number>> {
+  const { clearDemoHiddenSampleIds } = await import("@/lib/demo/hidden-samples");
   const result: Record<string, number> = {};
   for (const tableKey of OPERATIONAL_TABLES) {
     result[tableKey] = await deleteAllInCollection(tableKey);
   }
+  await clearDemoHiddenSampleIds();
   return result;
 }
 

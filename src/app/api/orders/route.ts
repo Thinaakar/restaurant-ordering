@@ -1,9 +1,8 @@
-import { listOrders } from "@/lib/firestore/app-data";
 import { createOrder } from "@/lib/firestore/app-writes";
 import { orderCreateSchema } from "@/lib/validation/entities";
-import { demoOrders } from "@/lib/demo";
+import { listOrdersForRequest } from "@/lib/demo/request-data";
+import { trackDemoCreated } from "@/lib/demo/created-records";
 import {
-  blockDemoWrites,
   ensureDb,
   handleRouteError,
   isDemoRequest,
@@ -12,9 +11,8 @@ import {
 
 export async function GET(request: Request) {
   try {
-    if (isDemoRequest(request)) return jsonData(demoOrders);
     await ensureDb();
-    return jsonData(await listOrders());
+    return jsonData(await listOrdersForRequest(request));
   } catch (e) {
     return handleRouteError(e);
   }
@@ -22,10 +20,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    blockDemoWrites(request);
     await ensureDb();
     const body = orderCreateSchema.parse(await request.json());
-    return jsonData(await createOrder(body), 201);
+    const created = await createOrder(body);
+    if (isDemoRequest(request)) await trackDemoCreated("orders", created.id);
+    return jsonData(created, 201);
   } catch (e) {
     return handleRouteError(e);
   }

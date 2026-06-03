@@ -31,6 +31,50 @@ function defaultRoleName(roles: Role[]): string {
 const fmt = (d: string) => new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
 const PAGE_SIZE = 5;
 
+/* ── Form field (module-level so inputs are not remounted on each keystroke) ── */
+function UserFormField({
+  label,
+  id,
+  type = 'text',
+  value,
+  name,
+  placeholder,
+  error,
+  onChange,
+}: {
+  label: string;
+  id: string;
+  type?: string;
+  value: string;
+  name: string;
+  placeholder?: string;
+  error?: string;
+  onChange: (value: string) => void;
+}) {
+  return (
+    <div className="space-y-1">
+      <label htmlFor={id} className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        value={value}
+        placeholder={placeholder}
+        onChange={(e) => onChange(e.target.value)}
+        className={cn(
+          'w-full px-3 py-2.5 rounded-lg border text-sm bg-stone-50 text-stone-900 outline-none transition-all',
+          error
+            ? 'border-red-300 ring-2 ring-red-50'
+            : 'border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-50',
+        )}
+      />
+      {error && <p className="text-[11px] text-red-600">{error}</p>}
+    </div>
+  );
+}
+
 /* ── Status Badge ── */
 function StatusBadge({ status }: { status: UserStatus }) {
   return (
@@ -48,7 +92,7 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
   user?: ManagedUser;
   roles: Role[];
   onClose: () => void;
-  onSave: (data: NewUserForm | EditUserForm) => void;
+  onSave: (data: NewUserForm | EditUserForm) => void | Promise<unknown>;
 }) {
   const assignableRoles = roles.filter((r) => r.status === 'active');
   const [form, setForm] = useState({
@@ -61,6 +105,8 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
     status: (user?.status ?? 'active') as UserStatus,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   const set = (k: string, v: string) => { setForm(p => ({ ...p, [k]: v })); setErrors(p => { const n = { ...p }; delete n[k]; return n; }); };
 
@@ -76,23 +122,20 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
     return e;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const e = validate();
     if (Object.keys(e).length) { setErrors(e); return; }
-    onSave(form);
-    onClose();
+    setSaveError('');
+    setSaving(true);
+    try {
+      await onSave(form);
+      onClose();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Could not save user');
+    } finally {
+      setSaving(false);
+    }
   };
-
-  const Field = ({ label, id, type = 'text', value, name, placeholder }: { label: string; id: string; type?: string; value: string; name: string; placeholder?: string }) => (
-    <div className="space-y-1">
-      <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500">{label}</label>
-      <input id={id} type={type} value={value} placeholder={placeholder}
-        onChange={e => set(name, e.target.value)}
-        className={cn('w-full px-3 py-2.5 rounded-lg border text-sm bg-stone-50 text-stone-900 outline-none transition-all',
-          errors[name] ? 'border-red-300 ring-2 ring-red-50' : 'border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-50')} />
-      {errors[name] && <p className="text-[11px] text-red-600">{errors[name]}</p>}
-    </div>
-  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
@@ -102,15 +145,18 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors"><X className="h-4 w-4" /></button>
         </div>
         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+          {saveError && (
+            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{saveError}</p>
+          )}
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Full Name" id="um-fullname" name="fullName" value={form.fullName} placeholder="Jane Smith" />
-            <Field label="Phone Number" id="um-phone" name="phone" value={form.phone} placeholder="+91 98000 00000" />
+            <UserFormField label="Full Name" id="um-fullname" name="fullName" value={form.fullName} placeholder="Jane Smith" error={errors.fullName} onChange={(v) => set('fullName', v)} />
+            <UserFormField label="Phone Number" id="um-phone" name="phone" value={form.phone} placeholder="+91 98000 00000" error={errors.phone} onChange={(v) => set('phone', v)} />
           </div>
-          <Field label="Email Address" id="um-email" name="email" type="email" value={form.email} placeholder={`jane@${RESTAURANT_EMAIL_DOMAIN}`} />
+          <UserFormField label="Email Address" id="um-email" name="email" type="email" value={form.email} placeholder={`jane@${RESTAURANT_EMAIL_DOMAIN}`} error={errors.email} onChange={(v) => set('email', v)} />
           {mode === 'add' && (
             <div className="grid grid-cols-2 gap-4">
-              <Field label="Password" id="um-pw" name="password" type="password" value={form.password} placeholder="Min 8 chars" />
-              <Field label="Confirm Password" id="um-cpw" name="confirmPassword" type="password" value={form.confirmPassword} placeholder="Re-enter" />
+              <UserFormField label="Password" id="um-pw" name="password" type="password" value={form.password} placeholder="Min 8 chars" error={errors.password} onChange={(v) => set('password', v)} />
+              <UserFormField label="Confirm Password" id="um-cpw" name="confirmPassword" type="password" value={form.confirmPassword} placeholder="Re-enter" error={errors.confirmPassword} onChange={(v) => set('confirmPassword', v)} />
             </div>
           )}
           <div className="grid grid-cols-2 gap-4">
@@ -145,8 +191,8 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
         </div>
         <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-stone-100 bg-stone-50/50">
           <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors">Cancel</button>
-          <button onClick={handleSave} className="px-5 py-2 text-sm font-semibold bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors shadow-sm">
-            {mode === 'add' ? 'Create User' : 'Update User'}
+          <button onClick={() => void handleSave()} disabled={saving} className="px-5 py-2 text-sm font-semibold bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors shadow-sm disabled:opacity-60">
+            {saving ? 'Saving…' : mode === 'add' ? 'Create User' : 'Update User'}
           </button>
         </div>
       </div>
@@ -231,7 +277,7 @@ function DeleteModal({ user, onClose, onConfirm }: { user: ManagedUser; onClose:
 export function UsersTab({ users, roles, onAdd, onUpdate, onDelete, onToggle }: {
   users: ManagedUser[];
   roles: Role[];
-  onAdd: (f: NewUserForm) => void;
+  onAdd: (f: NewUserForm) => void | Promise<unknown>;
   onUpdate: (id: string, f: EditUserForm) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
@@ -377,7 +423,7 @@ export function UsersTab({ users, roles, onAdd, onUpdate, onDelete, onToggle }: 
       </div>
 
       {/* Modals */}
-      {modal === 'add' && <UserFormModal mode="add" roles={roles} onClose={() => setModal(null)} onSave={d => onAdd(d as NewUserForm)} />}
+      {modal === 'add' && <UserFormModal key="add-user" mode="add" roles={roles} onClose={() => setModal(null)} onSave={d => onAdd(d as NewUserForm)} />}
       {modal === 'edit' && selected && <UserFormModal mode="edit" user={selected} roles={roles} onClose={() => setModal(null)} onSave={d => onUpdate(selected.id, d as EditUserForm)} />}
       {modal === 'view' && selected && <ViewModal user={selected} roles={roles} onClose={() => setModal(null)} />}
       {modal === 'delete' && selected && <DeleteModal user={selected} onClose={() => setModal(null)} onConfirm={() => { onDelete(selected.id); setModal(null); }} />}

@@ -35,24 +35,6 @@ export function isDemoRequest(request: Request): boolean {
   return getSessionFromRequest(request)?.isDemo === true;
 }
 
-export function blockDemoWrites(request: Request): void {
-  if (isDemoRequest(request)) {
-    throw new AuthError("Demo mode is read-only", 403);
-  }
-}
-
-export function requireNonDemoAuth(request: Request): SessionPayload {
-  const session = requireAuth(request);
-  if (session.isDemo) throw new AuthError("Demo mode is read-only", 403);
-  return session;
-}
-
-export function requireNonDemoSuperAdmin(request: Request): SessionPayload {
-  const session = requireSuperAdmin(request);
-  if (session.isDemo) throw new AuthError("Demo mode is read-only", 403);
-  return session;
-}
-
 export class AuthError extends Error {
   constructor(
     message: string,

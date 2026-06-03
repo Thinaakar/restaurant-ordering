@@ -1,22 +1,18 @@
-import { getSettings } from "@/lib/firestore/app-data";
 import { updateSettings } from "@/lib/firestore/app-writes";
 import { settingsUpdateSchema } from "@/lib/validation/entities";
-import { demoSettings } from "@/lib/demo";
+import { getSettingsForRequest } from "@/lib/demo/request-data";
 import {
   ensureDb,
   handleRouteError,
-  isDemoRequest,
   jsonData,
   requireAuth,
-  requireNonDemoAuth,
 } from "@/lib/api/route-helpers";
 
 export async function GET(request: Request) {
   try {
-    requireAuth(request);
-    if (isDemoRequest(request)) return jsonData(demoSettings);
     await ensureDb();
-    return jsonData((await getSettings()) ?? {});
+    requireAuth(request);
+    return jsonData(await getSettingsForRequest(request));
   } catch (e) {
     return handleRouteError(e);
   }
@@ -24,8 +20,8 @@ export async function GET(request: Request) {
 
 export async function PATCH(request: Request) {
   try {
-    requireNonDemoAuth(request);
     await ensureDb();
+    requireAuth(request);
     const body = settingsUpdateSchema.parse(await request.json());
     return jsonData(await updateSettings(body));
   } catch (e) {
