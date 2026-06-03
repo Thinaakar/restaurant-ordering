@@ -3,6 +3,7 @@ import { Plus, Minus, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/formatters';
 import type { MenuItem } from '@/data/types';
+import { menuItemDisplayInitial } from '@/lib/menu/display';
 
 interface MenuItemCardProps {
   item: MenuItem;
@@ -67,8 +68,8 @@ export function MenuItemCard({
   return (
     <div className="border border-border/50 rounded-xl p-4 bg-surface-1/30 hover:border-gold/30 transition-all">
       <div className="flex items-start gap-3 mb-3">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-2xl border border-border/25">
-          {item.image}
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-lg font-bold text-muted-foreground border border-border/25">
+          {item.image ?? menuItemDisplayInitial(item.name)}
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">

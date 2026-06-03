@@ -4,7 +4,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/use-cart';
 import { useOrders } from '@/hooks/use-orders';
-import { formatCurrency } from '@/lib/formatters'; // Uses $ for USD in customer areas
+import { formatCurrency } from '@/lib/formatters';
+import { menuItemDisplayInitial } from '@/lib/menu/display'; // Uses $ for USD in customer areas
 import { cn } from '@/lib/utils';
 import {
   ArrowLeft,
@@ -109,9 +110,8 @@ export default function CartCheckoutPage() {
             <div className="divide-y divide-border/20 px-5">
               {items.map((item) => (
                 <div key={item.menuItem.id} className="py-5 flex items-start gap-4">
-                  {/* Emoji Avatar */}
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-2xl border border-border/25">
-                    {item.menuItem.image}
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-surface-2 text-lg font-bold text-muted-foreground border border-border/25">
+                    {item.menuItem.image ?? menuItemDisplayInitial(item.menuItem.name)}
                   </div>
 
                   {/* Body details */}

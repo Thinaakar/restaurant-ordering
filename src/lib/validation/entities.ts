@@ -20,7 +20,6 @@ export const menuItemCreateSchema = z.object({
   name: z.string().min(1),
   description: z.string().default(''),
   price: z.number().positive(),
-  image: z.string().default('🍽️'),
   isAvailable: z.boolean().default(true),
   isVeg: z.boolean().default(true),
   spiceLevel: z.enum(['mild', 'medium', 'hot', 'extra-hot']).default('medium'),

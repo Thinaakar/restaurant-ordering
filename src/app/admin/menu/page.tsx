@@ -28,7 +28,6 @@ export default function AdminMenuPage() {
   const [formName, setFormName] = useState('');
   const [formDesc, setFormDesc] = useState('');
   const [formPrice, setFormPrice] = useState('');
-  const [formImage, setFormImage] = useState('🍛');
   const [formIsVeg, setFormIsVeg] = useState(true);
   const [formSpice, setFormSpice] = useState<SpiceLevel>('mild');
   const [formPrep, setFormPrep] = useState('15');
@@ -54,7 +53,6 @@ export default function AdminMenuPage() {
     setFormName('');
     setFormDesc('');
     setFormPrice('');
-    setFormImage('🍛');
     setFormIsVeg(true);
     setFormSpice('mild');
     setFormPrep('15');
@@ -67,7 +65,6 @@ export default function AdminMenuPage() {
     setFormName(item.name);
     setFormDesc(item.description);
     setFormPrice(item.price.toString());
-    setFormImage(item.image);
     setFormIsVeg(item.isVeg);
     setFormSpice(item.spiceLevel);
     setFormPrep(item.preparationTime.toString());
@@ -88,7 +85,6 @@ export default function AdminMenuPage() {
       name: formName,
       description: formDesc,
       price: parseFloat(formPrice),
-      image: formImage,
       isVeg: formIsVeg,
       spiceLevel: formSpice,
       preparationTime: parseInt(formPrep, 10),

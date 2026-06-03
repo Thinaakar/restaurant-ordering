@@ -117,16 +117,22 @@ export async function deleteTable(id: string): Promise<boolean> {
 
 // ── Menu ──────────────────────────────────────────────────────
 
+function menuPayloadWithoutImage<T extends Partial<MenuItem>>(input: T) {
+  const { image: _image, ...rest } = input;
+  return rest;
+}
+
 export async function createMenuItem(
   input: Omit<MenuItem, "id">,
 ): Promise<MenuItem> {
   const ref = col("menu_items").doc();
+  const data = menuPayloadWithoutImage(input);
   await ref.set({
-    ...input,
+    ...data,
     createdAt: FieldValue.serverTimestamp(),
     updatedAt: FieldValue.serverTimestamp(),
   });
-  return { id: ref.id, ...input };
+  return { id: ref.id, ...data };
 }
 
 export async function updateMenuItem(
@@ -134,9 +140,11 @@ export async function updateMenuItem(
   input: Partial<MenuItem>,
 ): Promise<MenuItem | null> {
   const ref = col("menu_items").doc(id);
+  const data = menuPayloadWithoutImage(input);
   await ref.set(
     {
-      ...stripUndefined(input as Record<string, unknown>),
+      ...stripUndefined(data as Record<string, unknown>),
+      image: FieldValue.delete(),
       updatedAt: FieldValue.serverTimestamp(),
     },
     { merge: true },

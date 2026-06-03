@@ -18,7 +18,7 @@ export interface MenuItem {
   name: string;
   description: string;
   price: number;
-  image: string;
+  image?: string;
   isAvailable: boolean;
   isVeg: boolean;
   spiceLevel: SpiceLevel;
