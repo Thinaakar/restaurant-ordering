@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useCart } from '@/hooks/use-cart';
-import { mockMenuItems } from '@/data/mock-menu';
+import { useMenu } from '@/hooks/use-menu';
 import type { MenuItem } from '@/data/types';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/formatters';
@@ -14,12 +14,13 @@ import {
 } from 'lucide-react';
 
 export function MenuBrowser() {
+  const { items: menuItems } = useMenu();
   const { items, addItem, updateQuantity } = useCart();
   const [searchTerm, setSearchTerm] = useState('');
   const [vegOnly, setVegOnly] = useState(false);
 
   const filteredItems = useMemo(() => {
-    return mockMenuItems.filter((item) => {
+    return menuItems.filter((item) => {
       if (!item.isAvailable) return false;
       if (vegOnly && !item.isVeg) return false;
 
@@ -29,7 +30,7 @@ export function MenuBrowser() {
         item.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
     });
-  }, [searchTerm, vegOnly]);
+  }, [menuItems, searchTerm, vegOnly]);
 
   const getCartQuantity = (menuItemId: string): number => {
     const cartItem = items.find((i) => i.menuItem.id === menuItemId);

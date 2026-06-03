@@ -1,13 +1,13 @@
-import { seedDatabaseIfEmpty } from '@/lib/firestore/seed';
+import { clearOperationalData } from '@/lib/firestore/app-writes';
 import { ensureDb, handleRouteError, jsonData, requireSuperAdmin } from '@/lib/api/route-helpers';
 
-/** Loads sample tables, menu, orders, users, and roles (only when collections are empty). */
+/** Clears orders, tables, menu, users, and roles so dashboard/reports show zero. */
 export async function POST(request: Request) {
   try {
     await ensureDb();
     requireSuperAdmin(request);
-    const result = await seedDatabaseIfEmpty();
-    return jsonData(result);
+    const deleted = await clearOperationalData();
+    return jsonData({ cleared: true, deleted });
   } catch (e) {
     return handleRouteError(e);
   }

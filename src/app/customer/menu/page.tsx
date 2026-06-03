@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useCart } from '@/hooks/use-cart';
-import { mockMenuItems } from '@/data/mock-menu';
+import { useMenu } from '@/hooks/use-menu';
 import type { MenuItem, SpiceLevel } from '@/data/types';
 import { cn } from '@/lib/utils';
 import { formatCurrency } from '@/lib/formatters';
@@ -94,6 +94,7 @@ export default function MenuBrowsingPage() {
     }
   }, [tableId, router]);
 
+  const { items: menuItems } = useMenu();
   const [searchQuery, setSearchQuery] = useState('');
   const [vegOnly, setVegOnly] = useState(false);
 
@@ -103,7 +104,7 @@ export default function MenuBrowsingPage() {
   const [notes, setNotes] = useState('');
 
   // Filtering Logic
-  const filteredItems = mockMenuItems.filter((item) => {
+  const filteredItems = menuItems.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());

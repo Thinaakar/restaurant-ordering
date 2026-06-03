@@ -3,10 +3,7 @@ import { ensureAppTables } from '@/lib/firebase/collections';
 import { getAdminFirestore } from '@/lib/firebase/admin';
 import { isCollectionEmpty } from '@/lib/firestore/app-data';
 import { seedDocument, upsertAdminAccount } from '@/lib/firestore/app-writes';
-import { mockTables } from '@/data/mock-tables';
-import { mockMenuItems } from '@/data/mock-menu';
-import { mockOrders } from '@/data/mock-orders';
-import { MOCK_USERS, MOCK_ROLES } from '@/data/mock-users';
+import { SEED_TABLES, SEED_MENU_ITEMS, SEED_ORDERS, SEED_USERS, SEED_ROLES } from '@/data/seed-data';
 import {
   DEMO_ADMIN_EMAIL,
   DEMO_ADMIN_PASSWORD,
@@ -23,7 +20,7 @@ export async function seedDatabaseIfEmpty(): Promise<{ seeded: boolean; message:
     return { seeded: false, message: 'Database already has data' };
   }
 
-  for (const t of mockTables) {
+  for (const t of SEED_TABLES) {
     const { id, ...rest } = t;
     await seedDocument('tables', id, {
       ...rest,
@@ -32,7 +29,7 @@ export async function seedDatabaseIfEmpty(): Promise<{ seeded: boolean; message:
     });
   }
 
-  for (const m of mockMenuItems) {
+  for (const m of SEED_MENU_ITEMS) {
     const { id, ...rest } = m;
     await seedDocument('menu_items', id, {
       ...rest,
@@ -41,7 +38,7 @@ export async function seedDatabaseIfEmpty(): Promise<{ seeded: boolean; message:
     });
   }
 
-  for (const o of mockOrders) {
+  for (const o of SEED_ORDERS) {
     const { id, createdAt, updatedAt, ...rest } = o;
     await seedDocument('orders', id, {
       ...rest,
@@ -50,7 +47,7 @@ export async function seedDatabaseIfEmpty(): Promise<{ seeded: boolean; message:
     });
   }
 
-  for (const u of MOCK_USERS) {
+  for (const u of SEED_USERS) {
     const { id, createdAt, updatedAt, ...rest } = u;
     await seedDocument('managed_users', id, {
       ...rest,
@@ -59,7 +56,7 @@ export async function seedDatabaseIfEmpty(): Promise<{ seeded: boolean; message:
     });
   }
 
-  for (const r of MOCK_ROLES) {
+  for (const r of SEED_ROLES) {
     const { id, ...rest } = r;
     await seedDocument('roles', id, rest);
   }

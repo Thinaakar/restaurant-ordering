@@ -5,7 +5,7 @@ import { useTables } from '@/hooks/use-tables';
 import { useCart } from '@/hooks/use-cart';
 import { useOrders } from '@/hooks/use-orders';
 import { useToast } from '@/hooks/use-toast';
-import { mockMenuItems } from '@/data/mock-menu';
+import { useMenu } from '@/hooks/use-menu';
 import type { MenuItem } from '@/data/types';
 import { ShoppingCart, Plus, Minus, X, Check, ChefHat, Search, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -21,11 +21,12 @@ export default function WaiterOrderingPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [specialInstructions, setSpecialInstructions] = useState('');
   const [orderPlaced, setOrderPlaced] = useState(false);
+  const { items: menuItems } = useMenu();
 
   const selectedTable = tables.find((t) => t.id === tableId);
   
   // Filter menu items
-  const filteredItems = mockMenuItems.filter((item) => {
+  const filteredItems = menuItems.filter((item) => {
     if (!item.isAvailable) return false;
     const matchesSearch = searchTerm === '' || 
       item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||

@@ -1,9 +1,11 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useOrders } from '@/hooks/use-orders';
 import { useTables } from '@/hooks/use-tables';
 import { useAnalytics } from '@/hooks/use-analytics';
+import { useAuth } from '@/hooks/use-auth';
+import { apiJson } from '@/lib/http/client';
 import { StatCard } from '@/components/ui/stat-card';
 import { formatCurrency } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
@@ -41,9 +43,36 @@ const CHART_TOOLTIP = {
 };
 
 export default function AdminDashboardPage() {
-  const { orders } = useOrders();
-  const { tables } = useTables();
-  const { summary } = useAnalytics();
+  const { user } = useAuth();
+  const { orders, refresh: refreshOrders } = useOrders();
+  const { tables, refresh: refreshTables } = useTables();
+  const { summary, refresh: refreshAnalytics } = useAnalytics();
+  const [dataAction, setDataAction] = useState<'idle' | 'loading'>('idle');
+
+  const refreshAll = async () => {
+    await Promise.all([refreshOrders(), refreshTables(), refreshAnalytics()]);
+  };
+
+  const handleClearData = async () => {
+    if (!confirm('Clear all tables, menu, orders, and users? Dashboard will show zero.')) return;
+    setDataAction('loading');
+    try {
+      await apiJson('/api/data/reset', { method: 'POST' });
+      await refreshAll();
+    } finally {
+      setDataAction('idle');
+    }
+  };
+
+  const handleLoadSample = async () => {
+    setDataAction('loading');
+    try {
+      await apiJson<{ seeded: boolean; message: string }>('/api/seed', { method: 'POST' });
+      await refreshAll();
+    } finally {
+      setDataAction('idle');
+    }
+  };
 
   const weeklyRevenue = useMemo(() => buildWeeklyRevenue(orders), [orders]);
   const peakHoursData = useMemo(() => buildPeakHours(orders), [orders]);
@@ -94,8 +123,30 @@ export default function AdminDashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/20 pb-5">
         <div>
           <h1 className="text-3xl font-display font-semibold tracking-tight">Executive Dashboard</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Live orders and revenue from your database</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Starts at zero until you add data or load sample data
+          </p>
         </div>
+        {user?.role === 'super_admin' && (
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={dataAction === 'loading'}
+              onClick={() => void handleClearData()}
+              className="rounded-lg border border-border px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-muted-foreground hover:border-destructive hover:text-destructive transition disabled:opacity-50"
+            >
+              Clear all data
+            </button>
+            <button
+              type="button"
+              disabled={dataAction === 'loading'}
+              onClick={() => void handleLoadSample()}
+              className="rounded-lg bg-gold px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-black gold-gradient transition disabled:opacity-50"
+            >
+              Load sample data
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

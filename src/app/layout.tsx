@@ -6,6 +6,7 @@ import { ThemeProvider } from '@/hooks/use-theme';
 import { AuthProvider } from '@/hooks/use-auth';
 import { TablesProvider } from '@/hooks/use-tables';
 import { OrdersProvider } from '@/hooks/use-orders';
+import { MenuProvider } from '@/hooks/use-menu';
 import { CartProvider } from '@/hooks/use-cart';
 import { ToastProvider } from '@/hooks/use-toast';
 import { RESTAURANT_NAME } from '@/lib/constants';
@@ -58,9 +59,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             <AuthProvider>
               <TablesProvider>
                 <OrdersProvider>
-                  <CartProvider>
-                    {children}
-                  </CartProvider>
+                  <MenuProvider>
+                    <CartProvider>
+                      {children}
+                    </CartProvider>
+                  </MenuProvider>
                 </OrdersProvider>
               </TablesProvider>
             </AuthProvider>

@@ -307,6 +307,38 @@ export async function updateSettings(payload: Record<string, unknown>): Promise<
   return payload;
 }
 
+// ── Clear operational data (dashboard starts at zero) ───────
+
+const OPERATIONAL_TABLES = ['orders', 'tables', 'menu_items', 'managed_users', 'roles'] as const;
+
+async function deleteAllInCollection(tableKey: string): Promise<number> {
+  const db = getAdminFirestore();
+  const snapshot = await col(tableKey).get();
+  if (snapshot.empty) return 0;
+
+  const batchSize = 400;
+  let deleted = 0;
+  const docs = snapshot.docs;
+
+  for (let i = 0; i < docs.length; i += batchSize) {
+    const batch = db.batch();
+    docs.slice(i, i + batchSize).forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+    deleted += Math.min(batchSize, docs.length - i);
+  }
+
+  return deleted;
+}
+
+/** Removes tables, menu, orders, users, and roles. Keeps admin login accounts. */
+export async function clearOperationalData(): Promise<Record<string, number>> {
+  const result: Record<string, number> = {};
+  for (const tableKey of OPERATIONAL_TABLES) {
+    result[tableKey] = await deleteAllInCollection(tableKey);
+  }
+  return result;
+}
+
 // ── Seed batch writes ─────────────────────────────────────────
 
 export async function seedDocument(
