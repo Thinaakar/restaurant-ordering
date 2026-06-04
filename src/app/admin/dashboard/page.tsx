@@ -149,17 +149,12 @@ export default function AdminDashboardPage() {
           <h1 className="text-3xl font-display font-semibold tracking-tight">
             Executive Dashboard
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {user?.isDemo
-              ? "Demo Super Admin — full access, 2 sample records per module (read-only)"
-              : "Starts at zero until you add data or load sample data"}
-          </p>
+          {!user?.isDemo && (
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Starts at zero until you add data or load sample data
+            </p>
+          )}
         </div>
-        {user?.isDemo && (
-          <p className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-amber-200">
-            Demo preview — changes are not saved to Firestore
-          </p>
-        )}
         {user?.role === "super_admin" && !user?.isDemo && (
           <div className="flex flex-wrap gap-2">
             <button

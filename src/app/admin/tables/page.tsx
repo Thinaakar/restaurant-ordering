@@ -1,42 +1,43 @@
-'use client';
+"use client";
 
-import React, { useMemo, useState } from 'react';
-import { useTables } from '@/hooks/use-tables';
-import type { TableStatus } from '@/data/types';
-import { cn } from '@/lib/utils';
+import React, { useMemo, useState } from "react";
+import { useTables } from "@/hooks/use-tables";
+import type { TableStatus } from "@/data/types";
+import { cn } from "@/lib/utils";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
 const STATUS_STYLE: Record<TableStatus, string> = {
-  available: 'text-emerald   border-emerald/25   bg-emerald/8',
-  occupied: 'text-red-400   border-red-400/25   bg-red-400/8',
-  cleaning: 'text-amber-400 border-amber-400/25 bg-amber-400/8',
+  available: "text-emerald   border-emerald/25   bg-emerald/8",
+  occupied: "text-red-400   border-red-400/25   bg-red-400/8",
+  cleaning: "text-amber-400 border-amber-400/25 bg-amber-400/8",
 };
 
 const STATUS_DOT: Record<TableStatus, string> = {
-  available: 'bg-emerald',
-  occupied: 'bg-red-400',
-  cleaning: 'bg-amber-400',
+  available: "bg-emerald",
+  occupied: "bg-red-400",
+  cleaning: "bg-amber-400",
 };
 
 const STATUS_LABEL: Record<TableStatus, string> = {
-  available: 'Available',
-  occupied: 'Occupied',
-  cleaning: 'Cleaning',
+  available: "Available",
+  occupied: "Occupied",
+  cleaning: "Cleaning",
 };
 
 export default function AdminTablesPage() {
-  const { tables, loading, addTable, deleteTable, updateTableStatus } = useTables();
+  const { tables, loading, addTable, deleteTable, updateTableStatus } =
+    useTables();
   const [isOpen, setIsOpen] = useState(false);
-  const [formNumber, setFormNumber] = useState('');
-  const [formSeats, setFormSeats] = useState('');
-  const [formFloor, setFormFloor] = useState('1');
-  const [formError, setFormError] = useState('');
+  const [formNumber, setFormNumber] = useState("");
+  const [formSeats, setFormSeats] = useState("");
+  const [formFloor, setFormFloor] = useState("1");
+  const [formError, setFormError] = useState("");
 
   const displayTables = useMemo(
     () => [...tables].sort((a, b) => a.floor - b.floor || a.number - b.number),
@@ -49,9 +50,9 @@ export default function AdminTablesPage() {
         ? Math.max(...displayTables.map((t) => t.number)) + 1
         : 1;
     setFormNumber(String(nextNumber));
-    setFormSeats('4');
-    setFormFloor('1');
-    setFormError('');
+    setFormSeats("4");
+    setFormFloor("1");
+    setFormError("");
     setIsOpen(true);
   };
 
@@ -62,15 +63,15 @@ export default function AdminTablesPage() {
     const floor = parseInt(formFloor, 10);
 
     if (!Number.isFinite(number) || number < 1) {
-      setFormError('Enter a valid table number.');
+      setFormError("Enter a valid table number.");
       return;
     }
     if (!Number.isFinite(seats) || seats < 1) {
-      setFormError('Enter a valid seat count.');
+      setFormError("Enter a valid seat count.");
       return;
     }
     if (!Number.isFinite(floor) || floor < 1) {
-      setFormError('Enter a valid floor number.');
+      setFormError("Enter a valid floor number.");
       return;
     }
     if (displayTables.some((t) => t.number === number && t.floor === floor)) {
@@ -129,7 +130,9 @@ export default function AdminTablesPage() {
 
         <div className="overflow-y-auto flex-1">
           {loading ? (
-            <p className="px-6 py-12 text-center text-sm text-muted-foreground">Loading tables…</p>
+            <p className="px-6 py-12 text-center text-sm text-muted-foreground">
+              Loading tables…
+            </p>
           ) : displayTables.length === 0 ? (
             <div className="px-6 py-12 text-center space-y-3">
               <p className="text-sm text-muted-foreground">No tables yet.</p>
@@ -146,27 +149,46 @@ export default function AdminTablesPage() {
               <div
                 key={table.id}
                 className={cn(
-                  'grid grid-cols-[1fr_1fr_0.75fr_1.25fr_0.75fr] items-center px-6 py-4 transition-colors duration-150',
-                  idx !== displayTables.length - 1 && 'border-b border-border/25',
-                  'hover:bg-surface-2/30',
+                  "grid grid-cols-[1fr_1fr_0.75fr_1.25fr_0.75fr] items-center px-6 py-4 transition-colors duration-150",
+                  idx !== displayTables.length - 1 &&
+                    "border-b border-border/25",
+                  "hover:bg-surface-2/30",
                 )}
               >
-                <span className="text-sm font-semibold text-foreground">Table {table.number}</span>
-                <span className="text-sm text-muted-foreground">{table.seats}</span>
-                <span className="text-sm text-muted-foreground">{table.floor}</span>
+                <span className="text-sm font-semibold text-foreground">
+                  Table {table.number}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {table.seats}
+                </span>
+                <span className="text-sm text-muted-foreground">
+                  {table.floor}
+                </span>
 
                 <div className="relative">
                   <div
                     className={cn(
-                      'flex items-center gap-2 rounded-lg border px-3 py-1.5 w-fit',
+                      "flex items-center gap-2 rounded-lg border px-3 py-1.5 w-fit",
                       STATUS_STYLE[table.status],
                     )}
                   >
-                    <span className={cn('h-1.5 w-1.5 rounded-full shrink-0', STATUS_DOT[table.status])} />
-                    <span className="text-xs font-semibold">{STATUS_LABEL[table.status]}</span>
+                    <span
+                      className={cn(
+                        "h-1.5 w-1.5 rounded-full shrink-0",
+                        STATUS_DOT[table.status],
+                      )}
+                    />
+                    <span className="text-xs font-semibold">
+                      {STATUS_LABEL[table.status]}
+                    </span>
                     <select
                       value={table.status}
-                      onChange={(e) => updateTableStatus(table.id, e.target.value as TableStatus)}
+                      onChange={(e) =>
+                        updateTableStatus(
+                          table.id,
+                          e.target.value as TableStatus,
+                        )
+                      }
                       className="absolute inset-0 opacity-0 cursor-pointer w-full"
                       aria-label={`Change status for Table ${table.number}`}
                     >
@@ -181,7 +203,11 @@ export default function AdminTablesPage() {
                       stroke="currentColor"
                       strokeWidth="1.8"
                     >
-                      <path d="M2 4l4 4 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                      <path
+                        d="M2 4l4 4 4-4"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -213,7 +239,10 @@ export default function AdminTablesPage() {
             <form onSubmit={handleSubmit} className="space-y-4 my-2 text-xs">
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-1.5">
-                  <label htmlFor="table-number" className="font-bold text-muted-foreground">
+                  <label
+                    htmlFor="table-number"
+                    className="font-bold text-muted-foreground"
+                  >
                     Table #
                   </label>
                   <input
@@ -227,7 +256,10 @@ export default function AdminTablesPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label htmlFor="table-seats" className="font-bold text-muted-foreground">
+                  <label
+                    htmlFor="table-seats"
+                    className="font-bold text-muted-foreground"
+                  >
                     Seats
                   </label>
                   <input
@@ -241,7 +273,10 @@ export default function AdminTablesPage() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label htmlFor="table-floor" className="font-bold text-muted-foreground">
+                  <label
+                    htmlFor="table-floor"
+                    className="font-bold text-muted-foreground"
+                  >
                     Floor
                   </label>
                   <input
@@ -257,7 +292,9 @@ export default function AdminTablesPage() {
               </div>
 
               {formError && (
-                <p className="text-[11px] font-medium text-destructive">{formError}</p>
+                <p className="text-[11px] font-medium text-destructive">
+                  {formError}
+                </p>
               )}
 
               <DialogFooter className="pt-2 flex flex-row gap-3">

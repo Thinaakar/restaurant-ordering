@@ -106,7 +106,6 @@ export default function AdminMenuPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border/20 pb-5">
         <div>
           <h1 className="text-3xl font-display font-semibold tracking-tight">Menu Manager</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">Menu loaded from Firestore via /api/menu</p>
         </div>
 
         <button

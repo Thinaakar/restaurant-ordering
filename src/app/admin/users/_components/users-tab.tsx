@@ -9,11 +9,11 @@ import type { NewUserForm, EditUserForm } from '@/hooks/use-users';
 
 /* ── helpers ── */
 const ROLE_COLOR_BY_NAME: Record<string, string> = {
-  super_admin: 'bg-purple-100 text-purple-800 border-purple-200',
-  admin: 'bg-amber-100 text-amber-800 border-amber-200',
-  kitchen_chef: 'bg-orange-100 text-orange-800 border-orange-200',
-  waiter: 'bg-blue-100 text-blue-700 border-blue-200',
-  cashier: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+  super_admin: 'bg-purple-500/15 text-purple-800 dark:text-purple-300 border-purple-500/30',
+  admin: 'bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30',
+  kitchen_chef: 'bg-orange-500/15 text-orange-800 dark:text-orange-300 border-orange-500/30',
+  waiter: 'bg-blue-500/15 text-blue-700 dark:text-blue-300 border-blue-500/30',
+  cashier: 'bg-emerald-500/15 text-emerald-800 dark:text-emerald-300 border-emerald-500/30',
 };
 
 function roleLabel(roleName: string, roles: Role[]): string {
@@ -21,7 +21,7 @@ function roleLabel(roleName: string, roles: Role[]): string {
 }
 
 function roleBadgeClass(roleName: string): string {
-  return ROLE_COLOR_BY_NAME[roleName] ?? 'bg-stone-100 text-stone-700 border-stone-200';
+  return ROLE_COLOR_BY_NAME[roleName] ?? 'bg-muted text-muted-foreground border-border';
 }
 
 function defaultRoleName(roles: Role[]): string {
@@ -53,7 +53,7 @@ function UserFormField({
 }) {
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="text-[11px] font-bold uppercase tracking-wider text-stone-500">
+      <label htmlFor={id} className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
         {label}
       </label>
       <input
@@ -64,13 +64,13 @@ function UserFormField({
         placeholder={placeholder}
         onChange={(e) => onChange(e.target.value)}
         className={cn(
-          'w-full px-3 py-2.5 rounded-lg border text-sm bg-stone-50 text-stone-900 outline-none transition-all',
+          'w-full px-3 py-2.5 rounded-lg border text-sm bg-surface-2/45 text-foreground outline-none transition-all',
           error
-            ? 'border-red-300 ring-2 ring-red-50'
-            : 'border-stone-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-50',
+            ? 'border-destructive ring-1 ring-destructive/30'
+            : 'border-border focus:border-gold focus:ring-1 focus:ring-gold',
         )}
       />
-      {error && <p className="text-[11px] text-red-600">{error}</p>}
+      {error && <p className="text-[11px] text-destructive">{error}</p>}
     </div>
   );
 }
@@ -79,8 +79,8 @@ function UserFormField({
 function StatusBadge({ status }: { status: UserStatus }) {
   return (
     <span className={cn('inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border',
-      status === 'active' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-stone-100 text-stone-500 border-stone-200')}>
-      <span className={cn('h-1.5 w-1.5 rounded-full', status === 'active' ? 'bg-emerald-500' : 'bg-stone-400')} />
+      status === 'active' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30' : 'bg-muted text-muted-foreground border-border')}>
+      <span className={cn('h-1.5 w-1.5 rounded-full', status === 'active' ? 'bg-emerald-500' : 'bg-muted-foreground')} />
       {status === 'active' ? 'Active' : 'Inactive'}
     </span>
   );
@@ -139,14 +139,14 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg border border-stone-200 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100">
-          <h2 className="text-base font-bold text-stone-900">{mode === 'add' ? 'Add New User' : 'Edit User'}</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors"><X className="h-4 w-4" /></button>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-lg border border-border overflow-hidden text-foreground">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
+          <h2 className="text-base font-bold text-foreground">{mode === 'add' ? 'Add New User' : 'Edit User'}</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-2 text-muted-foreground hover:text-foreground transition-colors"><X className="h-4 w-4" /></button>
         </div>
         <div className="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
           {saveError && (
-            <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-lg px-3 py-2">{saveError}</p>
+            <p className="text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg px-3 py-2">{saveError}</p>
           )}
           <div className="grid grid-cols-2 gap-4">
             <UserFormField label="Full Name" id="um-fullname" name="fullName" value={form.fullName} placeholder="Jane Smith" error={errors.fullName} onChange={(v) => set('fullName', v)} />
@@ -161,12 +161,12 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
           )}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500">Role</label>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Role</label>
               <select
                 value={form.role}
                 onChange={(e) => set('role', e.target.value)}
                 disabled={assignableRoles.length === 0}
-                className="w-full px-3 py-2.5 rounded-lg border border-stone-200 text-sm bg-stone-50 text-stone-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-50 transition-all disabled:opacity-50"
+                className="w-full px-3 py-2.5 rounded-lg border border-border text-sm bg-surface-2/45 text-foreground outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all disabled:opacity-50"
               >
                 {assignableRoles.length === 0 ? (
                   <option value="">No roles — add roles on Roles page</option>
@@ -180,18 +180,18 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
               </select>
             </div>
             <div className="space-y-1">
-              <label className="text-[11px] font-bold uppercase tracking-wider text-stone-500">Status</label>
+              <label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Status</label>
               <select value={form.status} onChange={e => set('status', e.target.value)}
-                className="w-full px-3 py-2.5 rounded-lg border border-stone-200 text-sm bg-stone-50 text-stone-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-50 transition-all">
+                className="w-full px-3 py-2.5 rounded-lg border border-border text-sm bg-surface-2/45 text-foreground outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all">
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-stone-100 bg-stone-50/50">
-          <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors">Cancel</button>
-          <button onClick={() => void handleSave()} disabled={saving} className="px-5 py-2 text-sm font-semibold bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors shadow-sm disabled:opacity-60">
+        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-border/60 bg-surface-1/30">
+          <button onClick={onClose} className="px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-surface-2 rounded-lg transition-colors">Cancel</button>
+          <button onClick={() => void handleSave()} disabled={saving} className="px-5 py-2 text-sm font-semibold bg-gold text-black rounded-lg hover:opacity-90 transition-colors shadow-sm disabled:opacity-60">
             {saving ? 'Saving…' : mode === 'add' ? 'Create User' : 'Update User'}
           </button>
         </div>
@@ -204,16 +204,16 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
 function ViewModal({ user, roles, onClose }: { user: ManagedUser; roles: Role[]; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm border border-stone-200 overflow-hidden">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-stone-100">
-          <h2 className="text-base font-bold text-stone-900">User Details</h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors"><X className="h-4 w-4" /></button>
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm border border-border overflow-hidden text-foreground">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border/60">
+          <h2 className="text-base font-bold text-foreground">User Details</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-2 text-muted-foreground hover:text-foreground transition-colors"><X className="h-4 w-4" /></button>
         </div>
         <div className="p-6 space-y-5">
           <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-stone-100 border border-stone-200 text-2xl">{user.avatar || '👤'}</div>
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-2 border border-border text-2xl">{user.avatar || '👤'}</div>
             <div>
-              <p className="font-bold text-stone-900 text-base">{user.fullName}</p>
+              <p className="font-bold text-foreground text-base">{user.fullName}</p>
               <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border mt-1', roleBadgeClass(user.role))}>
                 {roleLabel(user.role, roles)}
               </span>
@@ -227,21 +227,21 @@ function ViewModal({ user, roles, onClose }: { user: ManagedUser; roles: Role[];
               { icon: RefreshCw, label: 'Updated', value: fmt(user.updatedAt) },
             ].map(({ icon: Icon, label, value }) => (
               <div key={label} className="flex items-center gap-3">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-50 border border-stone-100">
-                  <Icon className="h-3.5 w-3.5 text-stone-500" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-2/45 border border-border/60">
+                  <Icon className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
                 <div>
-                  <p className="text-[10px] text-stone-400 font-medium uppercase tracking-wide">{label}</p>
-                  <p className="text-stone-800 font-medium text-xs">{value}</p>
+                  <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{label}</p>
+                  <p className="text-foreground font-medium text-xs">{value}</p>
                 </div>
               </div>
             ))}
             <div className="flex items-center gap-3">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-stone-50 border border-stone-100">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-surface-2/45 border border-border/60">
                 <span className="text-xs">⚡</span>
               </div>
               <div>
-                <p className="text-[10px] text-stone-400 font-medium uppercase tracking-wide">Status</p>
+                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">Status</p>
                 <StatusBadge status={user.status} />
               </div>
             </div>
@@ -256,17 +256,17 @@ function ViewModal({ user, roles, onClose }: { user: ManagedUser; roles: Role[];
 function DeleteModal({ user, onClose, onConfirm }: { user: ManagedUser; onClose: () => void; onConfirm: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm border border-stone-200 p-6 space-y-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-red-50 border border-red-100 mx-auto">
-          <Trash2 className="h-5 w-5 text-red-600" />
+      <div className="bg-card rounded-2xl shadow-2xl w-full max-w-sm border border-border p-6 space-y-4 text-foreground">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-destructive/10 border border-destructive/20 mx-auto">
+          <Trash2 className="h-5 w-5 text-destructive" />
         </div>
         <div className="text-center space-y-1">
-          <h3 className="font-bold text-stone-900">Delete User</h3>
-          <p className="text-sm text-stone-500">Remove <span className="font-semibold text-stone-700">{user.fullName}</span> from the system? This cannot be undone.</p>
+          <h3 className="font-bold text-foreground">Delete User</h3>
+          <p className="text-sm text-muted-foreground">Remove <span className="font-semibold text-foreground">{user.fullName}</span> from the system? This cannot be undone.</p>
         </div>
         <div className="flex gap-3 pt-2">
-          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-medium border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors">Cancel</button>
-          <button onClick={onConfirm} className="flex-1 px-4 py-2.5 text-sm font-semibold bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">Delete</button>
+          <button onClick={onClose} className="flex-1 px-4 py-2.5 text-sm font-medium border border-border text-muted-foreground rounded-lg hover:bg-surface-2 transition-colors">Cancel</button>
+          <button onClick={onConfirm} className="flex-1 px-4 py-2.5 text-sm font-semibold bg-destructive text-destructive-foreground rounded-lg hover:opacity-90 transition-colors">Delete</button>
         </div>
       </div>
     </div>
@@ -316,37 +316,37 @@ export function UsersTab({ users, roles, onAdd, onUpdate, onDelete, onToggle }: 
       <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
         <div className="flex flex-wrap gap-2 flex-1">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
               placeholder="Search users…"
-              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-stone-200 bg-stone-50 text-stone-900 outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-50 w-56 transition-all" />
+              className="pl-9 pr-3 py-2 text-sm rounded-lg border border-border bg-surface-2/45 text-foreground outline-none focus:border-gold focus:ring-1 focus:ring-gold w-56 transition-all" />
           </div>
           <select value={roleFilter} onChange={e => { setRoleFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 text-sm rounded-lg border border-stone-200 bg-stone-50 text-stone-700 outline-none focus:border-amber-400 transition-all">
+            className="px-3 py-2 text-sm rounded-lg border border-border bg-surface-2/45 text-foreground outline-none focus:border-gold transition-all cursor-pointer">
             <option value="all">All Roles</option>
             {activeRoles.map((r) => (
               <option key={r.id} value={r.name}>{r.label}</option>
             ))}
           </select>
           <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value as UserStatus | 'all'); setPage(1); }}
-            className="px-3 py-2 text-sm rounded-lg border border-stone-200 bg-stone-50 text-stone-700 outline-none focus:border-amber-400 transition-all">
+            className="px-3 py-2 text-sm rounded-lg border border-border bg-surface-2/45 text-foreground outline-none focus:border-gold transition-all cursor-pointer">
             <option value="all">All Status</option>
             <option value="active">Active</option>
             <option value="inactive">Inactive</option>
           </select>
         </div>
         <button onClick={() => open('add')}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-stone-900 text-white rounded-lg hover:bg-stone-800 transition-colors shadow-sm shrink-0">
+          className="flex items-center gap-2 px-4 py-2 text-sm font-semibold bg-gold text-black rounded-lg hover:opacity-90 transition-colors shadow-sm shrink-0">
           <Plus className="h-4 w-4" /> Add User
         </button>
       </div>
 
       {/* Table */}
-      <div className="rounded-xl border border-stone-200 overflow-hidden bg-white shadow-sm">
+      <div className="rounded-xl border border-border/50 overflow-hidden bg-card shadow-sm">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="bg-stone-50 border-b border-stone-200">
+              <tr className="border-b border-border/20 bg-surface-1/45">
                 {[
                   { label: 'User', field: 'fullName' as const },
                   { label: 'Phone', field: null },
@@ -357,41 +357,41 @@ export function UsersTab({ users, roles, onAdd, onUpdate, onDelete, onToggle }: 
                 ].map(({ label, field }) => (
                   <th key={label}
                     onClick={() => field && toggleSort(field)}
-                    className={cn('px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-stone-500 whitespace-nowrap', field && 'cursor-pointer hover:text-stone-800 select-none')}>
+                    className={cn('px-4 py-3 text-left text-[11px] font-bold uppercase tracking-wider text-muted-foreground whitespace-nowrap', field && 'cursor-pointer hover:text-foreground select-none')}>
                     {label} {field && sortField === field && (sortDir === 'asc' ? '↑' : '↓')}
                   </th>
                 ))}
               </tr>
             </thead>
-            <tbody className="divide-y divide-stone-100">
+            <tbody className="divide-y divide-border/20">
               {paginated.length === 0 ? (
-                <tr><td colSpan={6} className="py-16 text-center text-stone-400 text-sm">No users found</td></tr>
+                <tr><td colSpan={6} className="py-16 text-center text-muted-foreground text-sm">No users found</td></tr>
               ) : paginated.map(u => (
-                <tr key={u.id} className="hover:bg-stone-50/60 transition-colors group">
+                <tr key={u.id} className="hover:bg-surface-2/10 transition-colors group">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-stone-100 border border-stone-200 text-sm shrink-0">{u.avatar || '👤'}</div>
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 border border-border text-sm shrink-0">{u.avatar || '👤'}</div>
                       <div>
-                        <p className="font-semibold text-stone-900 text-xs">{u.fullName}</p>
-                        <p className="text-[11px] text-stone-400">{u.email}</p>
+                        <p className="font-semibold text-foreground text-xs">{u.fullName}</p>
+                        <p className="text-[11px] text-muted-foreground">{u.email}</p>
                       </div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-xs text-stone-600 whitespace-nowrap">{u.phone}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{u.phone}</td>
                   <td className="px-4 py-3">
                     <span className={cn('px-2 py-0.5 rounded-full text-[11px] font-semibold border', roleBadgeClass(u.role))}>{roleLabel(u.role, roles)}</span>
                   </td>
                   <td className="px-4 py-3"><StatusBadge status={u.status} /></td>
-                  <td className="px-4 py-3 text-xs text-stone-500 whitespace-nowrap">{fmt(u.createdAt)}</td>
+                  <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{fmt(u.createdAt)}</td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button onClick={() => open('view', u)} title="View" className="p-1.5 rounded-lg hover:bg-stone-100 text-stone-400 hover:text-stone-700 transition-colors"><Eye className="h-3.5 w-3.5" /></button>
-                      <button onClick={() => open('edit', u)} title="Edit" className="p-1.5 rounded-lg hover:bg-amber-50 text-stone-400 hover:text-amber-700 transition-colors"><Pencil className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => open('view', u)} title="View" className="p-1.5 rounded-lg border border-border bg-card/50 text-muted-foreground hover:border-gold hover:text-gold transition-colors"><Eye className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => open('edit', u)} title="Edit" className="p-1.5 rounded-lg border border-border bg-card/50 text-muted-foreground hover:border-gold hover:text-gold transition-colors"><Pencil className="h-3.5 w-3.5" /></button>
                       <button onClick={() => onToggle(u.id)} title={u.status === 'active' ? 'Deactivate' : 'Activate'}
-                        className="p-1.5 rounded-lg hover:bg-blue-50 text-stone-400 hover:text-blue-700 transition-colors">
+                        className="p-1.5 rounded-lg border border-border bg-card/50 text-muted-foreground hover:border-gold hover:text-gold transition-colors">
                         {u.status === 'active' ? <ToggleRight className="h-3.5 w-3.5" /> : <ToggleLeft className="h-3.5 w-3.5" />}
                       </button>
-                      <button onClick={() => open('delete', u)} title="Delete" className="p-1.5 rounded-lg hover:bg-red-50 text-stone-400 hover:text-red-600 transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
+                      <button onClick={() => open('delete', u)} title="Delete" className="p-1.5 rounded-lg border border-border bg-card/50 text-muted-foreground hover:border-destructive hover:text-destructive transition-colors"><Trash2 className="h-3.5 w-3.5" /></button>
                     </div>
                   </td>
                 </tr>
@@ -401,21 +401,21 @@ export function UsersTab({ users, roles, onAdd, onUpdate, onDelete, onToggle }: 
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between px-4 py-3 border-t border-stone-100 bg-stone-50/50">
-          <p className="text-xs text-stone-500">{filtered.length} user{filtered.length !== 1 ? 's' : ''} · Page {page} of {totalPages}</p>
+        <div className="flex items-center justify-between px-4 py-3 border-t border-border/20 bg-surface-1/30">
+          <p className="text-xs text-muted-foreground">{filtered.length} user{filtered.length !== 1 ? 's' : ''} · Page {page} of {totalPages}</p>
           <div className="flex items-center gap-1">
             <button onClick={() => setPage(p => Math.max(1, p - 1))} disabled={page === 1}
-              className="p-1.5 rounded-lg border border-stone-200 text-stone-500 hover:bg-stone-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              className="p-1.5 rounded-lg border border-border text-muted-foreground hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <ChevronLeft className="h-3.5 w-3.5" />
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
               <button key={n} onClick={() => setPage(n)}
-                className={cn('h-7 w-7 text-xs rounded-lg border transition-colors', n === page ? 'bg-stone-900 text-white border-stone-900' : 'border-stone-200 text-stone-600 hover:bg-stone-100')}>
+                className={cn('h-7 w-7 text-xs rounded-lg border transition-colors', n === page ? 'bg-gold text-black border-gold' : 'border-border text-muted-foreground hover:bg-surface-2')}>
                 {n}
               </button>
             ))}
             <button onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={page === totalPages}
-              className="p-1.5 rounded-lg border border-stone-200 text-stone-500 hover:bg-stone-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+              className="p-1.5 rounded-lg border border-border text-muted-foreground hover:bg-surface-2 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
               <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
