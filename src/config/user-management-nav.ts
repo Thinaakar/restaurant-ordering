@@ -1,6 +1,6 @@
-import type { AdminAccountRole } from '@/data/types';
+import type { UserRole } from '@/data/types';
 import type { LucideIcon } from 'lucide-react';
-import { UserCircle, Shield, KeyRound } from 'lucide-react';
+import { UserCircle } from 'lucide-react';
 
 export const USER_MANAGEMENT_BASE = '/admin';
 
@@ -21,24 +21,14 @@ export const USER_MANAGEMENT_NAV: UserManagementNavItem[] = [
     icon: UserCircle,
     superAdminOnly: false,
   },
-  {
-    label: 'Roles',
-    href: `${USER_MANAGEMENT_BASE}/roles`,
-    icon: Shield,
-    superAdminOnly: true,
-  },
-  {
-    label: 'Permissions',
-    href: `${USER_MANAGEMENT_BASE}/permissions`,
-    icon: KeyRound,
-    superAdminOnly: true,
-  },
 ];
 
 export const USER_MANAGEMENT_PATHS = USER_MANAGEMENT_NAV.map((item) => item.href);
 
-export function getUserManagementNavItems(role: AdminAccountRole | undefined): UserManagementNavItem[] {
+export function getUserManagementNavItems(role: UserRole | string | undefined): UserManagementNavItem[] {
   const isSuperAdmin = role === 'super_admin';
+  const isAdmin = role === 'admin' || isSuperAdmin;
+  if (!isAdmin) return [];
   return USER_MANAGEMENT_NAV.filter((item) => !item.superAdminOnly || isSuperAdmin);
 }
 

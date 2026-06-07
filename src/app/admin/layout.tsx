@@ -1,22 +1,30 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { AdminSidebar } from '@/components/shell/admin-sidebar';
 import { AdminHeader } from '@/components/shell/admin-header';
 import { UserManagementProvider } from '@/providers/user-management-provider';
+import { MenuMasterDataProvider } from '@/providers/menu-master-data-provider';
+import { canAccessAdminPath, getLoginRedirect } from '@/lib/auth/roles';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, loading } = useAuth();
+  const pathname = usePathname();
+  const { isAuthenticated, loading, user } = useAuth();
 
-  // Authentication Guard
   useEffect(() => {
     if (!loading && !isAuthenticated) {
       router.push('/login');
     }
   }, [isAuthenticated, loading, router]);
+
+  useEffect(() => {
+    if (!loading && isAuthenticated && user && pathname && !canAccessAdminPath(user.role, pathname)) {
+      router.replace(getLoginRedirect(user.role, user.isDemo));
+    }
+  }, [isAuthenticated, loading, user, pathname, router]);
 
   if (loading || !isAuthenticated) {
     return (
@@ -28,13 +36,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <UserManagementProvider>
+    <MenuMasterDataProvider>
     <div className="flex h-screen overflow-hidden bg-background">
-      {/* Collapsible Sidebar */}
       <div className="hidden md:flex h-full shrink-0">
         <AdminSidebar />
       </div>
 
-      {/* Main content frame */}
       <div className="flex flex-col flex-1 overflow-hidden">
         <AdminHeader />
         
@@ -45,6 +52,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </main>
       </div>
     </div>
+    </MenuMasterDataProvider>
     </UserManagementProvider>
   );
 }

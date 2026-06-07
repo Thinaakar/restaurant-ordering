@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
@@ -8,8 +8,8 @@ import { cn } from '@/lib/utils';
 import { RESTAURANT_ADMIN_LABEL } from '@/lib/constants';
 import {
   getUserManagementNavItems,
-  isUserManagementPath,
 } from '@/config/user-management-nav';
+import { filterNavHref } from '@/lib/auth/roles';
 import {
   LayoutDashboard,
   Grid3X3,
@@ -19,9 +19,6 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  ChevronDown,
-  ChevronRight,
-  Users,
 } from 'lucide-react';
 
 interface SidebarItem {
@@ -39,48 +36,49 @@ export function AdminSidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const { logout, user } = useAuth();
-  const [userMgmtOpen, setUserMgmtOpen] = useState(true);
 
   const userManagementChildren = useMemo(
     () => getUserManagementNavItems(user?.role),
     [user?.role]
   );
 
-  const isSuperAdmin = user?.role === 'super_admin';
-  const isUserMgmtActive = isUserManagementPath(pathname);
+  const navigationGroups: SidebarGroup[] = useMemo(() => {
+    const groups: SidebarGroup[] = [
+      {
+        name: 'Overview',
+        items: [{ label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard }],
+      },
+      {
+        name: 'Management',
+        items: [
+          { label: 'Table Manager', href: '/admin/tables', icon: Grid3X3 },
+          { label: 'Menu Items', href: '/admin/menu', icon: UtensilsCrossed },
+        ],
+      },
+      {
+        name: 'Operations',
+        items: [
+          { label: 'Kitchen Board', href: '/admin/kitchen', icon: ChefHat },
+          { label: 'Orders', href: '/admin/orders/create', icon: UtensilsCrossed },
+          { label: 'Cashier', href: '/admin/cashier', icon: CreditCard },
+        ],
+      },
+      {
+        name: 'Analytics',
+        items: [
+          { label: 'Reports Analytics', href: '/admin/reports', icon: BarChart3 },
+          { label: 'Settings', href: '/admin/settings', icon: Settings },
+        ],
+      },
+    ];
 
-  useEffect(() => {
-    if (isUserMgmtActive) setUserMgmtOpen(true);
-  }, [isUserMgmtActive, pathname]);
-
-  const navigationGroups: SidebarGroup[] = [
-    {
-      name: 'Overview',
-      items: [{ label: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard }],
-    },
-    {
-      name: 'Management',
-      items: [
-        { label: 'Table Manager', href: '/admin/tables', icon: Grid3X3 },
-        { label: 'Menu Items', href: '/admin/menu', icon: UtensilsCrossed },
-      ],
-    },
-    {
-      name: 'Operations',
-      items: [
-        { label: 'Kitchen Board', href: '/admin/kitchen', icon: ChefHat },
-        { label: 'Orders', href: '/admin/orders/create', icon: UtensilsCrossed },
-        { label: 'Cashier', href: '/admin/cashier', icon: CreditCard },
-      ],
-    },
-    {
-      name: 'Analytics',
-      items: [
-        { label: 'Reports Analytics', href: '/admin/reports', icon: BarChart3 },
-        { label: 'Settings', href: '/admin/settings', icon: Settings },
-      ],
-    },
-  ];
+    return groups
+      .map((group) => ({
+        ...group,
+        items: group.items.filter((item) => filterNavHref(user?.role, item.href)),
+      }))
+      .filter((group) => group.items.length > 0);
+  }, [user?.role]);
 
   const navLinkClass = (isActive: boolean, indented = false) =>
     cn(
@@ -94,13 +92,6 @@ export function AdminSidebar() {
   const handleLogout = () => {
     void logout().then(() => router.push('/login'));
   };
-
-  const submenuMaxHeight =
-    userManagementChildren.length <= 1
-      ? '2.75rem'
-      : userManagementChildren.length === 2
-        ? '5.5rem'
-        : '8.25rem';
 
   return (
     <aside className="relative flex w-64 flex-col border-r border-border/40 bg-sidebar min-h-screen text-sidebar-foreground">
@@ -142,67 +133,38 @@ export function AdminSidebar() {
           </div>
         ))}
 
-        {/* User Management — collapsible parent */}
+        {/* User Management — admin / super admin only */}
+        {userManagementChildren.length > 0 && (
         <div className="space-y-1">
           <h4 className="px-3 text-xs font-bold uppercase tracking-wider text-muted-foreground/60 select-none">
             Account
           </h4>
 
-          <button
-            type="button"
-            onClick={() => setUserMgmtOpen((open) => !open)}
-            className={cn(navLinkClass(isUserMgmtActive), 'w-full')}
-            aria-expanded={userMgmtOpen}
-          >
-            <Users
-              className={cn(
-                'h-5 w-5 shrink-0',
-                isUserMgmtActive ? 'text-gold' : 'text-muted-foreground group-hover:text-foreground'
-              )}
-            />
-            <span className="flex-1 text-left">User Management</span>
-            {userMgmtOpen ? (
-              <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300" />
-            ) : (
-              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-300" />
-            )}
-          </button>
+          {userManagementChildren.map((child) => {
+            const ChildIcon = child.icon;
+            const childActive =
+              pathname === child.href || pathname?.startsWith(`${child.href}/`);
 
-          {/* Submenu: Users, Roles, Permissions */}
-          <div
-            className={cn(
-              'overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out',
-              userMgmtOpen ? 'opacity-100' : 'max-h-0 opacity-0'
-            )}
-            style={userMgmtOpen ? { maxHeight: submenuMaxHeight } : undefined}
-          >
-            <div className="space-y-0.5 pt-0.5 border-l-2 border-border/30 ml-5 pl-1">
-              {userManagementChildren.map((child) => {
-                const ChildIcon = child.icon;
-                const childActive =
-                  pathname === child.href || pathname?.startsWith(child.href + '/');
-
-                return (
-                  <Link
-                    key={child.href}
-                    href={child.href}
-                    className={navLinkClass(childActive, true)}
-                  >
-                    <ChildIcon
-                      className={cn(
-                        'h-4 w-4 shrink-0',
-                        childActive
-                          ? 'text-gold'
-                          : 'text-muted-foreground group-hover:text-foreground'
-                      )}
-                    />
-                    <span>{child.label}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
+            return (
+              <Link
+                key={child.href}
+                href={child.href}
+                className={navLinkClass(childActive)}
+              >
+                <ChildIcon
+                  className={cn(
+                    'h-5 w-5 shrink-0',
+                    childActive
+                      ? 'text-gold'
+                      : 'text-muted-foreground group-hover:text-foreground',
+                  )}
+                />
+                <span>{child.label}</span>
+              </Link>
+            );
+          })}
         </div>
+        )}
       </nav>
 
       <div className="border-t border-border/40 p-4 space-y-3">
@@ -214,8 +176,8 @@ export function AdminSidebar() {
             <div className="overflow-hidden">
               <p className="text-xs font-bold text-foreground truncate">{user.name}</p>
               <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
-              <p className="text-[10px] font-semibold text-gold">
-                {isSuperAdmin ? 'Super Admin' : 'Admin'}
+              <p className="text-[10px] font-semibold text-gold capitalize">
+                {String(user.role).replace(/_/g, ' ')}
               </p>
             </div>
           </div>

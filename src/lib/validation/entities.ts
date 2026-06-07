@@ -22,7 +22,8 @@ export const menuItemCreateSchema = z.object({
   price: z.number().positive(),
   isAvailable: z.boolean().default(true),
   isVeg: z.boolean().default(true),
-  spiceLevel: z.enum(['mild', 'medium', 'hot', 'extra-hot']).default('medium'),
+  dishTypeValue: z.string().optional(),
+  spiceLevel: z.string().min(1).default('medium'),
   preparationTime: z.number().int().positive().default(15),
   rating: z.number().min(0).max(5).default(4),
   orderCount: z.number().int().nonnegative().default(0),
@@ -56,6 +57,7 @@ export const managedUserCreateSchema = z.object({
   fullName: z.string().min(1),
   email: z.string().email(),
   phone: z.string().min(1),
+  password: z.string().min(8),
   role: z.string().min(1),
   status: z.enum(['active', 'inactive']).default('active'),
   avatar: z.string().optional(),
@@ -77,3 +79,18 @@ export const rolePermissionsSchema = z.object({
 });
 
 export const settingsUpdateSchema = z.record(z.unknown());
+
+export const dishTypeCreateSchema = z.object({
+  label: z.string().min(1),
+  isVeg: z.boolean(),
+  status: z.enum(['active', 'inactive']).default('active'),
+});
+
+export const dishTypeUpdateSchema = dishTypeCreateSchema.partial();
+
+export const spiceLevelCreateSchema = z.object({
+  label: z.string().min(1),
+  status: z.enum(['active', 'inactive']).default('active'),
+});
+
+export const spiceLevelUpdateSchema = spiceLevelCreateSchema.partial();

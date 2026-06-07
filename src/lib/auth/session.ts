@@ -1,6 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
-import type { AdminAccountRole } from "@/data/types";
+import type { UserRole } from "@/data/types";
 
 export const SESSION_COOKIE = "yumm_session";
 const MAX_AGE_SEC = 60 * 60 * 24 * 7;
@@ -8,7 +8,7 @@ const MAX_AGE_SEC = 60 * 60 * 24 * 7;
 export interface SessionPayload {
   email: string;
   name: string;
-  role: AdminAccountRole;
+  role: UserRole | string;
   avatar?: string;
   isDemo?: boolean;
   exp: number;

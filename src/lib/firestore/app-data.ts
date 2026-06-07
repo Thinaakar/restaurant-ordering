@@ -12,6 +12,7 @@ import type {
   Role,
   AnalyticsSummary,
   AdminAccountRole,
+  UserRole,
 } from '@/data/types';
 import { hashPassword } from '@/lib/auth/password';
 
@@ -30,7 +31,7 @@ export interface AdminAccountRecord {
   email: string;
   passwordHash: string;
   name: string;
-  role: AdminAccountRole;
+  role: UserRole | string;
   avatar?: string;
 }
 
@@ -134,6 +135,22 @@ export async function getManagedUser(id: string): Promise<ManagedUser | null> {
   const doc = await appCollection(db(), 'managed_users').doc(id).get();
   if (!doc.exists) return null;
   const data = doc.data()!;
+  return {
+    ...data,
+    id: doc.id,
+    createdAt: toIsoString(data.createdAt),
+    updatedAt: toIsoString(data.updatedAt),
+  } as ManagedUser;
+}
+
+export async function getManagedUserByEmail(email: string): Promise<ManagedUser | null> {
+  const snap = await appCollection(db(), 'managed_users')
+    .where('email', '==', email.toLowerCase())
+    .limit(1)
+    .get();
+  if (snap.empty) return null;
+  const doc = snap.docs[0];
+  const data = doc.data();
   return {
     ...data,
     id: doc.id,

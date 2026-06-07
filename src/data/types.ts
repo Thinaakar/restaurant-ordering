@@ -21,7 +21,8 @@ export interface MenuItem {
   image?: string;
   isAvailable: boolean;
   isVeg: boolean;
-  spiceLevel: SpiceLevel;
+  dishTypeValue?: string;
+  spiceLevel: string;
   preparationTime: number; // minutes
   rating: number;
   orderCount: number;
@@ -99,7 +100,7 @@ export type AdminAccountRole = "super_admin" | "admin";
 export interface AdminUser {
   email: string;
   name: string;
-  role: AdminAccountRole;
+  role: UserRole | string;
   avatar?: string;
   isDemo?: boolean;
 }

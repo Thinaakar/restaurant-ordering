@@ -169,7 +169,7 @@ function UserFormModal({ mode, user, roles, onClose, onSave }: {
                 className="w-full px-3 py-2.5 rounded-lg border border-border text-sm bg-surface-2/45 text-foreground outline-none focus:border-gold focus:ring-1 focus:ring-gold transition-all disabled:opacity-50"
               >
                 {assignableRoles.length === 0 ? (
-                  <option value="">No roles — add roles on Roles page</option>
+                  <option value="">No roles — add roles in Settings</option>
                 ) : (
                   assignableRoles.map((r) => (
                     <option key={r.id} value={r.name}>
@@ -210,14 +210,11 @@ function ViewModal({ user, roles, onClose }: { user: ManagedUser; roles: Role[];
           <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-surface-2 text-muted-foreground hover:text-foreground transition-colors"><X className="h-4 w-4" /></button>
         </div>
         <div className="p-6 space-y-5">
-          <div className="flex items-center gap-4">
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-surface-2 border border-border text-2xl">{user.avatar || '👤'}</div>
-            <div>
-              <p className="font-bold text-foreground text-base">{user.fullName}</p>
-              <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border mt-1', roleBadgeClass(user.role))}>
-                {roleLabel(user.role, roles)}
-              </span>
-            </div>
+          <div>
+            <p className="font-bold text-foreground text-base">{user.fullName}</p>
+            <span className={cn('inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold border mt-1', roleBadgeClass(user.role))}>
+              {roleLabel(user.role, roles)}
+            </span>
           </div>
           <div className="space-y-3 text-sm">
             {[
@@ -369,12 +366,9 @@ export function UsersTab({ users, roles, onAdd, onUpdate, onDelete, onToggle }: 
               ) : paginated.map(u => (
                 <tr key={u.id} className="hover:bg-surface-2/10 transition-colors group">
                   <td className="px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 border border-border text-sm shrink-0">{u.avatar || '👤'}</div>
-                      <div>
-                        <p className="font-semibold text-foreground text-xs">{u.fullName}</p>
-                        <p className="text-[11px] text-muted-foreground">{u.email}</p>
-                      </div>
+                    <div>
+                      <p className="font-semibold text-foreground text-xs">{u.fullName}</p>
+                      <p className="text-[11px] text-muted-foreground">{u.email}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">{u.phone}</td>

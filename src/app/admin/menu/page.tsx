@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useMenu } from '@/hooks/use-menu';
-import type { MenuItem, SpiceLevel } from '@/data/types';
+import type { MenuItem } from '@/data/types';
+import { useMenuMasterData } from '@/providers/menu-master-data-provider';
 import { formatCurrency } from '@/lib/formatters';
 import { cn } from '@/lib/utils';
 import { Search } from 'lucide-react';
@@ -17,6 +18,12 @@ import {
 
 export default function AdminMenuPage() {
   const { items: itemsList, loading, createItem, updateItem, deleteItem } = useMenu();
+  const {
+    activeDishTypes,
+    activeSpiceLevels,
+    getDishTypeLabel,
+    getSpiceLevelLabel,
+  } = useMenuMasterData();
   const [searchQuery, setSearchQuery] = useState('');
   const [availabilityFilter, setAvailabilityFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
@@ -28,20 +35,28 @@ export default function AdminMenuPage() {
   const [formName, setFormName] = useState('');
   const [formDesc, setFormDesc] = useState('');
   const [formPrice, setFormPrice] = useState('');
-  const [formIsVeg, setFormIsVeg] = useState(true);
-  const [formSpice, setFormSpice] = useState<SpiceLevel>('mild');
+  const [formDishType, setFormDishType] = useState('veg');
+  const [formSpice, setFormSpice] = useState('mild');
   const [formPrep, setFormPrep] = useState('15');
 
-  const filteredItems = itemsList.filter((item) => {
+  const defaultDishType = activeDishTypes[0]?.value ?? 'veg';
+  const defaultSpice = activeSpiceLevels[0]?.value ?? 'mild';
+
+  const resolveDishType = (value: string) =>
+    activeDishTypes.find((d) => d.value === value) ??
+    activeDishTypes.find((d) => d.value === defaultDishType);
+
+  const filteredItems = useMemo(() => itemsList.filter((item) => {
     const matchesSearch =
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesAvailability =
       availabilityFilter === 'all' ||
       (availabilityFilter === 'available' ? item.isAvailable : !item.isAvailable);
-    const matchesType = typeFilter === 'all' || (typeFilter === 'veg' ? item.isVeg : !item.isVeg);
+    const itemTypeValue = item.dishTypeValue ?? (item.isVeg ? 'veg' : 'non-veg');
+    const matchesType = typeFilter === 'all' || itemTypeValue === typeFilter;
     return matchesSearch && matchesAvailability && matchesType;
-  });
+  }), [itemsList, searchQuery, availabilityFilter, typeFilter]);
 
   const handleToggleAvailable = (id: string, current: boolean) => {
     void updateItem(id, { isAvailable: !current });
@@ -53,8 +68,8 @@ export default function AdminMenuPage() {
     setFormName('');
     setFormDesc('');
     setFormPrice('');
-    setFormIsVeg(true);
-    setFormSpice('mild');
+    setFormDishType(defaultDishType);
+    setFormSpice(defaultSpice);
     setFormPrep('15');
     setIsOpen(true);
   };
@@ -65,7 +80,7 @@ export default function AdminMenuPage() {
     setFormName(item.name);
     setFormDesc(item.description);
     setFormPrice(item.price.toString());
-    setFormIsVeg(item.isVeg !== false);
+    setFormDishType(item.dishTypeValue ?? (item.isVeg ? 'veg' : 'non-veg'));
     setFormSpice(item.spiceLevel);
     setFormPrep(item.preparationTime.toString());
     setIsOpen(true);
@@ -81,11 +96,13 @@ export default function AdminMenuPage() {
     e.preventDefault();
     if (!formName || !formPrice) return;
 
+    const dishType = resolveDishType(formDishType);
     const payload = {
       name: formName,
       description: formDesc,
       price: parseFloat(formPrice),
-      isVeg: formIsVeg,
+      isVeg: dishType?.isVeg ?? true,
+      dishTypeValue: dishType?.value ?? formDishType,
       spiceLevel: formSpice,
       preparationTime: parseInt(formPrep, 10),
       rating: 4.5,
@@ -138,8 +155,11 @@ export default function AdminMenuPage() {
               className="rounded-lg border border-border bg-surface-2/45 px-3 py-1.5 text-xs text-foreground focus:outline-none focus:border-gold cursor-pointer"
             >
               <option value="all">All Types</option>
-              <option value="veg">Veg</option>
-              <option value="non-veg">Non-veg</option>
+              {activeDishTypes.map((type) => (
+                <option key={type.id} value={type.value}>
+                  {type.label}
+                </option>
+              ))}
             </select>
           </div>
         </div>
@@ -179,11 +199,13 @@ export default function AdminMenuPage() {
                           item.isVeg ? 'text-emerald' : 'text-red-500',
                         )}
                       >
-                        {item.isVeg ? 'Veg' : 'Non-veg'}
+                        {getDishTypeLabel(item)}
                       </span>
                     </td>
                     <td className="px-5 py-4">
-                      <span className="text-[10px] font-bold uppercase text-muted-foreground">{item.spiceLevel}</span>
+                      <span className="text-[10px] font-bold uppercase text-muted-foreground">
+                        {getSpiceLevelLabel(item.spiceLevel)}
+                      </span>
                     </td>
                     <td className="px-5 py-4 text-muted-foreground font-semibold">{item.preparationTime} min</td>
                     <td className="px-5 py-4 text-center">
@@ -285,12 +307,15 @@ export default function AdminMenuPage() {
                 <div className="space-y-1.5">
                   <label className="font-bold text-muted-foreground">Dish Type</label>
                   <select
-                    value={formIsVeg ? 'veg' : 'non-veg'}
-                    onChange={(e) => setFormIsVeg(e.target.value === 'veg')}
+                    value={formDishType}
+                    onChange={(e) => setFormDishType(e.target.value)}
                     className="w-full rounded-lg border border-border bg-surface-2/45 px-3 py-2 text-foreground focus:outline-none focus:border-gold cursor-pointer"
                   >
-                    <option value="veg">Veg</option>
-                    <option value="non-veg">Non-veg</option>
+                    {activeDishTypes.map((type) => (
+                      <option key={type.id} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -298,13 +323,14 @@ export default function AdminMenuPage() {
                   <label className="font-bold text-muted-foreground">Spice Index</label>
                   <select
                     value={formSpice}
-                    onChange={(e) => setFormSpice(e.target.value as SpiceLevel)}
+                    onChange={(e) => setFormSpice(e.target.value)}
                     className="w-full rounded-lg border border-border bg-surface-2/45 px-3 py-2 text-foreground focus:outline-none focus:border-gold"
                   >
-                    <option value="mild">Mild</option>
-                    <option value="medium">Medium</option>
-                    <option value="hot">Hot</option>
-                    <option value="extra-hot">Extra-hot</option>
+                    {activeSpiceLevels.map((level) => (
+                      <option key={level.id} value={level.value}>
+                        {level.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>

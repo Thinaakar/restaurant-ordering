@@ -96,10 +96,9 @@ export function UserManagementProvider({
 
   const addUser = useCallback(
     async (form: NewUserForm) => {
-      const { password: _p, confirmPassword: _c, ...payload } = form;
       const created = await apiJson<ManagedUser>("/api/users", {
         method: "POST",
-        body: JSON.stringify(payload),
+        body: JSON.stringify(form),
       });
       setUsers((prev) =>
         prev.some((u) => u.id === created.id) ? prev : [...prev, created],

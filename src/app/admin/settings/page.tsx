@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   Building2,
   Clock,
@@ -9,7 +10,10 @@ import {
   CreditCard,
   ChevronRight,
   Save,
-  RefreshCw,
+  Leaf,
+  Flame,
+  Shield,
+  KeyRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -17,6 +21,11 @@ import {
   RESTAURANT_FULL_NAME,
   RESTAURANT_RESERVATIONS_EMAIL,
 } from "@/lib/constants";
+import { MasterDataSection } from "@/components/settings/master-data-section";
+import { RolesSettingsSection } from "@/components/settings/roles-settings-section";
+import { PermissionsSettingsSection } from "@/components/settings/permissions-settings-section";
+import { useMenuMasterData } from "@/providers/menu-master-data-provider";
+import { useAuth } from "@/hooks/use-auth";
 
 // ─── Section IDs ─────────────────────────────────────────────────────────────
 type SectionId =
@@ -24,12 +33,33 @@ type SectionId =
   | "business-hours"
   | "table-configuration"
   | "kitchen-configuration"
-  | "payment-configuration";
+  | "payment-configuration"
+  | "dish-types"
+  | "spice-levels"
+  | "roles"
+  | "permissions";
 
 interface NavItem {
   id: SectionId;
   label: string;
   icon: React.ComponentType<{ className?: string }>;
+  superAdminOnly?: boolean;
+}
+
+const ALL_SECTION_IDS: SectionId[] = [
+  "restaurant-details",
+  "business-hours",
+  "table-configuration",
+  "kitchen-configuration",
+  "payment-configuration",
+  "dish-types",
+  "spice-levels",
+  "roles",
+  "permissions",
+];
+
+function isSectionId(value: string | null): value is SectionId {
+  return !!value && ALL_SECTION_IDS.includes(value as SectionId);
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -46,6 +76,10 @@ const NAV_ITEMS: NavItem[] = [
     label: "Payment Configuration",
     icon: CreditCard,
   },
+  { id: "dish-types", label: "Dish Types", icon: Leaf },
+  { id: "spice-levels", label: "Spice Levels", icon: Flame },
+  { id: "roles", label: "Roles", icon: Shield, superAdminOnly: true },
+  { id: "permissions", label: "Permissions", icon: KeyRound, superAdminOnly: true },
 ];
 
 // ─── Business hours ───────────────────────────────────────────────────────────
@@ -758,9 +792,86 @@ function PaymentConfiguration() {
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
+function DishTypesSettings() {
+  const {
+    dishTypes,
+    loading,
+    addDishType,
+    updateDishType,
+    deleteDishType,
+  } = useMenuMasterData();
+
+  return (
+    <MasterDataSection
+      title="Dish Types"
+      description="Manage dish type options used when creating menu items (e.g. Veg, Non-veg, Vegan)."
+      itemLabel="Dish Type"
+      items={dishTypes}
+      loading={loading}
+      showVegToggle
+      onAdd={(input) => addDishType({ label: input.label, isVeg: input.isVeg ?? true })}
+      onUpdate={updateDishType}
+      onDelete={deleteDishType}
+    />
+  );
+}
+
+function SpiceLevelsSettings() {
+  const {
+    spiceLevels,
+    loading,
+    addSpiceLevel,
+    updateSpiceLevel,
+    deleteSpiceLevel,
+  } = useMenuMasterData();
+
+  return (
+    <MasterDataSection
+      title="Spice Levels"
+      description="Manage spice index options used when creating menu items (e.g. Mild, Medium, Hot)."
+      itemLabel="Spice Level"
+      items={spiceLevels}
+      loading={loading}
+      onAdd={(input) => addSpiceLevel({ label: input.label })}
+      onUpdate={updateSpiceLevel}
+      onDelete={deleteSpiceLevel}
+    />
+  );
+}
+
 export default function AdminSettingsPage() {
-  const [activeSection, setActiveSection] =
-    useState<SectionId>("restaurant-details");
+  return (
+    <Suspense
+      fallback={
+        <div className="py-16 text-center text-sm text-muted-foreground">Loading settings…</div>
+      }
+    >
+      <AdminSettingsPageContent />
+    </Suspense>
+  );
+}
+
+function AdminSettingsPageContent() {
+  const searchParams = useSearchParams();
+  const { user } = useAuth();
+  const isSuperAdmin = user?.role === "super_admin";
+
+  const visibleNavItems = useMemo(
+    () => NAV_ITEMS.filter((item) => !item.superAdminOnly || isSuperAdmin),
+    [isSuperAdmin],
+  );
+
+  const [activeSection, setActiveSection] = useState<SectionId>("restaurant-details");
+
+  useEffect(() => {
+    const section = searchParams.get("section");
+    if (isSectionId(section)) {
+      const item = NAV_ITEMS.find((n) => n.id === section);
+      if (item && (!item.superAdminOnly || isSuperAdmin)) {
+        setActiveSection(section);
+      }
+    }
+  }, [searchParams, isSuperAdmin]);
 
   const renderSection = () => {
     switch (activeSection) {
@@ -774,6 +885,14 @@ export default function AdminSettingsPage() {
         return <KitchenConfiguration />;
       case "payment-configuration":
         return <PaymentConfiguration />;
+      case "dish-types":
+        return <DishTypesSettings />;
+      case "spice-levels":
+        return <SpiceLevelsSettings />;
+      case "roles":
+        return <RolesSettingsSection />;
+      case "permissions":
+        return <PermissionsSettingsSection />;
     }
   };
 
@@ -785,8 +904,7 @@ export default function AdminSettingsPage() {
           Settings
         </h1>
         <p className="text-xs text-muted-foreground mt-1">
-          Manage restaurant configuration, kitchen workflow, and payment
-          preferences.
+          Manage restaurant configuration, menu master data, roles, and permissions.
         </p>
       </div>
 
@@ -795,7 +913,7 @@ export default function AdminSettingsPage() {
         {/* ── Left Sidebar Nav ── */}
         <aside className="w-52 shrink-0">
           <nav className="space-y-0.5 sticky top-0">
-            {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
+            {visibleNavItems.map(({ id, label, icon: Icon }) => {
               const isActive = activeSection === id;
               return (
                 <button

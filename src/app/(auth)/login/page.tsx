@@ -15,6 +15,7 @@ import {
   DEMO_SUPER_ADMIN_PASSWORD,
   verifyDemoCredentials,
 } from "@/lib/demo/account";
+import { getLoginRedirect } from "@/lib/auth/roles";
 import {
   Lock,
   Mail,
@@ -288,7 +289,7 @@ function LoginForm({
   onSuccess,
 }: {
   onSwitch: (v: View) => void;
-  onSuccess: () => void;
+  onSuccess: (redirectTo: string) => void;
 }) {
   const { login, demoLogin } = useAuth();
   const [email, setEmail] = useState("");
@@ -321,10 +322,13 @@ function LoginForm({
     const signIn = verifyDemoCredentials(email, password)
       ? demoLogin()
       : login(email, password);
-    signIn.then((ok) => {
+    signIn.then((sessionUser) => {
       setLoading(false);
-      if (ok) onSuccess();
-      else setGlobalError("Invalid credentials. Please try again.");
+      if (sessionUser) {
+        onSuccess(getLoginRedirect(sessionUser.role, sessionUser.isDemo));
+      } else {
+        setGlobalError("Invalid credentials. Please try again.");
+      }
     });
   };
 
@@ -555,7 +559,7 @@ function ForgotForm({ onSwitch }: { onSwitch: (v: View) => void }) {
 /* ─────────────────────────── Page ──────────────────────────── */
 export default function AuthPage() {
   const router = useRouter();
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
   const [view, setView] = useState<View>("login");
 
   // Handle URL query parameters for view switching
@@ -569,8 +573,10 @@ export default function AuthPage() {
 
   // Only redirect after auth state has been resolved from localStorage
   useEffect(() => {
-    if (!loading && isAuthenticated) router.push("/admin/dashboard");
-  }, [isAuthenticated, loading, router]);
+    if (!loading && isAuthenticated && user) {
+      router.push(getLoginRedirect(user.role, user.isDemo));
+    }
+  }, [isAuthenticated, loading, router, user]);
 
   // Show nothing while resolving stored session to prevent flicker
   if (loading) {
@@ -581,7 +587,7 @@ export default function AuthPage() {
     );
   }
 
-  const handleSuccess = () => router.push("/admin/dashboard");
+  const handleSuccess = (redirectTo: string) => router.push(redirectTo);
 
   const switchView = (v: View) => {
     setView(v);

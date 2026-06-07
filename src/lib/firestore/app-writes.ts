@@ -37,6 +37,22 @@ export async function upsertAdminAccount(input: {
   role: AdminAccountRecord["role"];
   avatar?: string;
 }): Promise<void> {
+  await upsertAdminAccountHash({
+    email: input.email,
+    passwordHash: hashPassword(input.password),
+    name: input.name,
+    role: input.role,
+    avatar: input.avatar,
+  });
+}
+
+export async function upsertAdminAccountHash(input: {
+  email: string;
+  passwordHash: string;
+  name: string;
+  role: AdminAccountRecord["role"];
+  avatar?: string;
+}): Promise<void> {
   const email = input.email.toLowerCase();
   const existing = await col("admin_accounts")
     .where("email", "==", email)
@@ -44,7 +60,7 @@ export async function upsertAdminAccount(input: {
     .get();
   const payload = stripUndefined({
     email,
-    passwordHash: hashPassword(input.password),
+    passwordHash: input.passwordHash,
     name: input.name,
     role: input.role,
     avatar: input.avatar,
@@ -57,6 +73,17 @@ export async function upsertAdminAccount(input: {
     });
   } else {
     await existing.docs[0].ref.set(payload, { merge: true });
+  }
+}
+
+export async function deleteAdminAccountByEmail(email: string): Promise<void> {
+  const normalized = email.toLowerCase();
+  const existing = await col("admin_accounts")
+    .where("email", "==", normalized)
+    .limit(1)
+    .get();
+  if (!existing.empty) {
+    await existing.docs[0].ref.delete();
   }
 }
 

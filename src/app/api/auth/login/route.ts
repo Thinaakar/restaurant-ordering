@@ -1,5 +1,5 @@
 import { loginSchema } from '@/lib/validation/entities';
-import { getAdminAccountByEmail } from '@/lib/firestore/app-data';
+import { getAdminAccountByEmail, getManagedUserByEmail } from '@/lib/firestore/app-data';
 import { verifyPassword } from '@/lib/auth/password';
 import { createSessionToken, SESSION_COOKIE, sessionCookieOptions } from '@/lib/auth/session';
 import { ensureDemoAdminAccounts } from '@/lib/firestore/seed';
@@ -15,6 +15,12 @@ export async function POST(request: Request) {
     if (!account || !verifyPassword(body.password, account.passwordHash)) {
       return apiError('Invalid credentials', 401);
     }
+
+    const managed = await getManagedUserByEmail(body.email);
+    if (managed && managed.status !== 'active') {
+      return apiError('This account is inactive. Contact your administrator.', 403);
+    }
+
     const token = createSessionToken({
       email: account.email,
       name: account.name,

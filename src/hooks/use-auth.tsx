@@ -16,8 +16,8 @@ import {
 
 interface AuthContextType {
   user: AdminUser | null;
-  login: (email: string, password: string) => Promise<boolean>;
-  demoLogin: () => Promise<boolean>;
+  login: (email: string, password: string) => Promise<AdminUser | null>;
+  demoLogin: () => Promise<AdminUser | null>;
   resetPassword: (email: string, newPassword: string) => boolean;
   logout: () => Promise<void>;
   isAuthenticated: boolean;
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = useCallback(
-    async (email: string, password: string): Promise<boolean> => {
+    async (email: string, password: string): Promise<AdminUser | null> => {
       try {
         const sessionUser = await apiJson<AdminUser>("/api/auth/login", {
           method: "POST",
@@ -59,15 +59,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         });
         setUser(sessionUser);
         localStorage.setItem("yumm_admin_user", JSON.stringify(sessionUser));
-        return true;
+        return sessionUser;
       } catch {
-        return false;
+        return null;
       }
     },
     [],
   );
 
-  const demoLogin = useCallback(async (): Promise<boolean> => {
+  const demoLogin = useCallback(async (): Promise<AdminUser | null> => {
     try {
       const sessionUser = await apiJson<AdminUser>("/api/auth/demo-login", {
         method: "POST",
@@ -78,9 +78,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       setUser(sessionUser);
       localStorage.setItem("yumm_admin_user", JSON.stringify(sessionUser));
-      return true;
+      return sessionUser;
     } catch {
-      return false;
+      return null;
     }
   }, []);
 
